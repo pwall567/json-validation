@@ -54,6 +54,18 @@ They return `true` if the value matches the requirements of the specification.
         boolean valid = JSONValidation.isHostname(str);
 ```
 
+### `uri` validation
+
+```java
+        boolean valid = JSONValidation.isURI(str);
+```
+
+### `uri-reference` validation
+
+```java
+        boolean valid = JSONValidation.isURIReference(str);
+```
+
 ### `uuid` validation
 
 ```java

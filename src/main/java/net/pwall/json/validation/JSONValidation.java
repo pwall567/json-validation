@@ -25,6 +25,7 @@
 
 package net.pwall.json.validation;
 
+import java.net.URI;
 import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 
@@ -92,6 +93,42 @@ public class JSONValidation {
     public static boolean isDuration(String string) {
         try {
             Duration.parse(string);
+        }
+        catch (Exception ignored) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Test for conformity to the {@code uri} format type.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isURI(String string) {
+        try {
+            URI uri = new URI(string);
+            if (uri.getScheme() == null)
+                return false;
+        }
+        catch (Exception ignored) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Test for conformity to the {@code uri-reference} format type.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isURIReference(String string) {
+        URI baseURI = URI.create("http://pwall.net/schema/schema.json");
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            baseURI.resolve(string);
         }
         catch (Exception ignored) {
             return false;

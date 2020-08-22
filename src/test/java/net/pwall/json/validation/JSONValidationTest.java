@@ -97,6 +97,36 @@ public class JSONValidationTest {
     }
 
     @Test
+    public void shouldAcceptValidURI() {
+        assertTrue(JSONValidation.isURI("http://pwall.net/schema/schema.json"));
+        assertTrue(JSONValidation.isURI("urn:uuid:123e4567-e89b-12d3-a456-426655440000"));
+    }
+
+    @Test
+    public void shouldRejectInvalidURI() {
+        assertFalse(JSONValidation.isURI("xxx"));
+        assertFalse(JSONValidation.isURI(":xxx"));
+        assertFalse(JSONValidation.isURI("http:"));
+        assertFalse(JSONValidation.isURI(null));
+    }
+
+    @Test
+    public void shouldAcceptValidURIReference() {
+        assertTrue(JSONValidation.isURIReference("http://pwall.net/schema/schema.json"));
+        assertTrue(JSONValidation.isURIReference("urn:uuid:123e4567-e89b-12d3-a456-426655440000"));
+        assertTrue(JSONValidation.isURIReference("schema-2.json"));
+        assertTrue(JSONValidation.isURIReference("/xxx"));
+        assertTrue(JSONValidation.isURIReference("#abcd"));
+    }
+
+    @Test
+    public void shouldRejectInvalidURIReference() {
+        assertFalse(JSONValidation.isURIReference(":xxx"));
+        assertFalse(JSONValidation.isURIReference("http:"));
+        assertFalse(JSONValidation.isURIReference(null));
+    }
+
+    @Test
     public void shouldAcceptValidUUID() {
         assertTrue(JSONValidation.isUUID("632132e4-d62e-11ea-87e9-8f96286622c4"));
         assertTrue(JSONValidation.isUUID("6afc2014-d62e-11ea-9122-673293b85d12"));
@@ -109,6 +139,7 @@ public class JSONValidationTest {
         assertFalse(JSONValidation.isUUID("6afc2014d62e11ea9122673293b85d12"));
         assertFalse(JSONValidation.isUUID("7233-014ad62e-11ea-911b-a335d7bd6aba"));
         assertFalse(JSONValidation.isUUID("rubbish"));
+        assertFalse(JSONValidation.isUUID(""));
         assertFalse(JSONValidation.isUUID(null));
     }
 
