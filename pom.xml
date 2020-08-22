@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.pwall.json</groupId>
   <artifactId>json-validation</artifactId>
-  <version>0.1</version>
+  <version>0.2</version>
   <name>JSON Validation</name>
   <description>Validation functions for JSON Schema validation</description>
   <packaging>jar</packaging>

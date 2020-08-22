@@ -158,4 +158,93 @@ public class JSONValidationTest {
         assertFalse(JSONValidation.isEmail(null));
     }
 
+    @Test
+    public void shouldAcceptValidIPV4() {
+        assertTrue(JSONValidation.isIPV4("1.2.3.4"));
+        assertTrue(JSONValidation.isIPV4("127.0.0.1"));
+        assertTrue(JSONValidation.isIPV4("192.168.1.100"));
+        assertTrue(JSONValidation.isIPV4("10.20.1.255"));
+    }
+
+    @Test
+    public void shouldRejectInvalidIPV4() {
+        assertFalse(JSONValidation.isIPV4("1.2.3"));
+        assertFalse(JSONValidation.isIPV4("127.0.0.999"));
+        assertFalse(JSONValidation.isIPV4("0001.1.1.1"));
+        assertFalse(JSONValidation.isIPV4("1.2.3.256"));
+        assertFalse(JSONValidation.isIPV4("1.2.3.4.5"));
+        assertFalse(JSONValidation.isIPV4("localhost"));
+        assertFalse(JSONValidation.isIPV4("a.1.2.4"));
+        assertFalse(JSONValidation.isIPV4("192.168.1.abc"));
+        assertFalse(JSONValidation.isIPV4("256.1.1.1"));
+        assertFalse(JSONValidation.isIPV4("127:0:0:1"));
+        assertFalse(JSONValidation.isIPV4(""));
+        assertFalse(JSONValidation.isIPV4(null));
+    }
+
+    @Test
+    public void shouldAcceptValidIPV6() {
+        assertTrue(JSONValidation.isIPV6("2001:DB8:0:0:8:800:200C:417A"));
+        assertTrue(JSONValidation.isIPV6("2001:db8:0:0:8:800:200c:417a"));
+        assertTrue(JSONValidation.isIPV6("2001:DB8::8:800:200C:417A"));
+        assertTrue(JSONValidation.isIPV6("FF01:0:0:0:0:0:0:101"));
+        assertTrue(JSONValidation.isIPV6("FF01::101"));
+        assertTrue(JSONValidation.isIPV6("FF01:0:0:0:0:0:0:0"));
+        assertTrue(JSONValidation.isIPV6("FF01::"));
+        assertTrue(JSONValidation.isIPV6("ff01::"));
+        assertTrue(JSONValidation.isIPV6("0:0:0:0:0:0:0:1"));
+        assertTrue(JSONValidation.isIPV6("::1"));
+        assertTrue(JSONValidation.isIPV6("0:0:0:0:0:0:0:0"));
+        assertTrue(JSONValidation.isIPV6("::"));
+        assertTrue(JSONValidation.isIPV6("::1234:1"));
+        assertTrue(JSONValidation.isIPV6("::1234:1:2"));
+        assertTrue(JSONValidation.isIPV6("::1234:1:2:3"));
+        assertTrue(JSONValidation.isIPV6("::1234:1:2:3:4"));
+        assertTrue(JSONValidation.isIPV6("::1234:1:2:3:4:5"));
+        assertTrue(JSONValidation.isIPV6("::1234:1:2:3:4:5:6"));
+        assertTrue(JSONValidation.isIPV6("1234::1:2:3:4"));
+        assertTrue(JSONValidation.isIPV6("1234::1:2:3:4:5"));
+        assertTrue(JSONValidation.isIPV6("1234::1:2:3:4:5:6"));
+        assertTrue(JSONValidation.isIPV6("1234:1:2:3:4::"));
+        assertTrue(JSONValidation.isIPV6("1234:1:2:3:4:5::"));
+        assertTrue(JSONValidation.isIPV6("1234:1:2:3:4:5:6::"));
+        assertTrue(JSONValidation.isIPV6("0:0:0:0:0:0:13.1.68.3"));
+        assertTrue(JSONValidation.isIPV6("::13.1.68.3"));
+        assertTrue(JSONValidation.isIPV6("0:0:0:0:0:FFFF:129.144.52.38"));
+        assertTrue(JSONValidation.isIPV6("::FFFF:129.144.52.38"));
+        assertTrue(JSONValidation.isIPV6("::FFFF:1.2.3.4"));
+        assertTrue(JSONValidation.isIPV6("::1234:1.2.3.4"));
+        assertTrue(JSONValidation.isIPV6("::1234:1:1.2.3.4"));
+        assertTrue(JSONValidation.isIPV6("::1234:1:2:1.2.3.4"));
+        assertTrue(JSONValidation.isIPV6("::1234:1:2:3:1.2.3.4"));
+        assertTrue(JSONValidation.isIPV6("::1234:1:2:3:4:1.2.3.4"));
+        assertTrue(JSONValidation.isIPV6("1234::1:2:3:1.2.3.4"));
+        assertTrue(JSONValidation.isIPV6("1234::1:2:3:4:1.2.3.4"));
+        assertTrue(JSONValidation.isIPV6("1234:1:2:3::1.2.3.4"));
+        assertTrue(JSONValidation.isIPV6("1234:1:2:3:4::1.2.3.4"));
+    }
+
+    @Test
+    public void shouldRejectInvalidIPV6() {
+        assertFalse(JSONValidation.isIPV6("127.0.0.1"));
+        assertFalse(JSONValidation.isIPV6("2001:DB8:0:0:0:8:800:200C:417A"));
+        assertFalse(JSONValidation.isIPV6("2001:DB8::8:800::200C:417A"));
+        assertFalse(JSONValidation.isIPV6("2001:DB8::0:0:8:800:200C:417A"));
+        assertFalse(JSONValidation.isIPV6("2001:DB8:0:8:800:200C:417A"));
+        assertFalse(JSONValidation.isIPV6(":2001:DB8:0:8:800:200C:417A"));
+        assertFalse(JSONValidation.isIPV6("2001:DB8:0:8:800:200C:417A:"));
+        assertFalse(JSONValidation.isIPV6("2001:DB8::8:800:200G:417A"));
+        assertFalse(JSONValidation.isIPV6("::1234:1:2:3:4:5:6:7"));
+        assertFalse(JSONValidation.isIPV6("1234::1:2:3:4:5:6:7"));
+        assertFalse(JSONValidation.isIPV6("1234:1:2:3:4:5:6:7::"));
+        assertFalse(JSONValidation.isIPV6("0:0:0:0:0:FFFF:129.144.52.380"));
+        assertFalse(JSONValidation.isIPV6("0:0:0:0:0:FFFF:.144.52.38"));
+        assertFalse(JSONValidation.isIPV6("::1234:1:2:3:4:5:1.2.3.4"));
+        assertFalse(JSONValidation.isIPV6("1234::1:2:3:4:5:1.2.3.4"));
+        assertFalse(JSONValidation.isIPV6("1234:1:2:3:4:5::1.2.3.4"));
+        assertFalse(JSONValidation.isIPV6("localhost"));
+        assertFalse(JSONValidation.isIPV6(""));
+        assertFalse(JSONValidation.isIPV6(null));
+    }
+
 }

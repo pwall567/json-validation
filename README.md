@@ -60,27 +60,39 @@ They return `true` if the value matches the requirements of the specification.
         boolean valid = JSONValidation.isUUID(str);
 ```
 
+### `ipv4` validation
+
+```java
+        boolean valid = JSONValidation.isIPV4(str);
+```
+
+### `ipv6` validation
+
+```java
+        boolean valid = JSONValidation.isIPV6(str);
+```
+
 ## Dependency Specification
 
-The latest version of the library is 0.1, and it may be obtained from the Maven Central repository.
+The latest version of the library is 0.2, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.json</groupId>
       <artifactId>json-validation</artifactId>
-      <version>0.1</version>
+      <version>0.2</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    testImplementation 'net.pwall.json:json-validation:0.1'
+    testImplementation 'net.pwall.json:json-validation:0.2'
 ```
 ### Gradle (kts)
 ```kotlin
-    testImplementation("net.pwall.json:json-validation:0.1")
+    testImplementation("net.pwall.json:json-validation:0.2")
 ```
 
 Peter Wall
 
-2020-08-04
+2020-08-22
