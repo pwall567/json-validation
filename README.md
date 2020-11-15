@@ -1,5 +1,9 @@
 # json-validation
 
+[![Build Status](https://travis-ci.org/pwall567/json-validation.svg?branch=main)](https://travis-ci.org/pwall567/json-validation)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Maven Central](https://img.shields.io/maven-central/v/net.pwall.json/json-validation?label=Maven%20Central)](https://search.maven.org/search?q=g:%22net.pwall.json%22%20AND%20a:%22json-validation%22)
+
 Validation functions for JSON Schema validation
 
 ## Background
@@ -107,4 +111,4 @@ The latest version of the library is 0.2, and it may be obtained from the Maven 
 
 Peter Wall
 
-2020-08-22
+2020-11-15
