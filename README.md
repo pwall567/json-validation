@@ -90,23 +90,23 @@ They return `true` if the value matches the requirements of the specification.
 
 ## Dependency Specification
 
-The latest version of the library is 0.2, and it may be obtained from the Maven Central repository.
+The latest version of the library is 1.0, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.json</groupId>
       <artifactId>json-validation</artifactId>
-      <version>0.2</version>
+      <version>1.0</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    testImplementation 'net.pwall.json:json-validation:0.2'
+    testImplementation 'net.pwall.json:json-validation:1.0'
 ```
 ### Gradle (kts)
 ```kotlin
-    testImplementation("net.pwall.json:json-validation:0.2")
+    testImplementation("net.pwall.json:json-validation:1.0")
 ```
 
 Peter Wall

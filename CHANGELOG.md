@@ -2,9 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## [Unreleased]
+## [1.0] - 2020-11-15
 ### Changed
 - `README.md`: added badges
+- `pom.xml`: promoted to version 1.0
 
 ## [0.2] - 2020-08-22
 ### Added
