@@ -2,7 +2,7 @@
  * @(#) JSONValidationTest.java
  *
  * json-validation  Validation functions for JSON Schema validation
- * Copyright (c) 2020 Peter Wall
+ * Copyright (c) 2020, 2021 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -85,13 +85,50 @@ public class JSONValidationTest {
     public void shouldAcceptValidDuration() {
         assertTrue(JSONValidation.isDuration("P1D"));
         assertTrue(JSONValidation.isDuration("PT20S"));
+        assertTrue(JSONValidation.isDuration("PT999999S"));
         assertTrue(JSONValidation.isDuration("PT2H30M"));
+        assertTrue(JSONValidation.isDuration("PT2H30M5S"));
+        assertTrue(JSONValidation.isDuration("P1M"));
+        assertTrue(JSONValidation.isDuration("P52W"));
+        assertTrue(JSONValidation.isDuration("P2Y"));
+        assertTrue(JSONValidation.isDuration("P2Y4M"));
+        assertTrue(JSONValidation.isDuration("P2Y4M10D"));
+        assertTrue(JSONValidation.isDuration("P1Y0M1D"));
+        assertTrue(JSONValidation.isDuration("P1DT12H"));
+        assertTrue(JSONValidation.isDuration("P1DT12H6M"));
+        assertTrue(JSONValidation.isDuration("P1DT12H6M45S"));
+        assertTrue(JSONValidation.isDuration("P6MT4H"));
+        assertTrue(JSONValidation.isDuration("P6MT4H20M"));
+        assertTrue(JSONValidation.isDuration("P6MT4H20M9S"));
+        assertTrue(JSONValidation.isDuration("P6MT20M"));
+        assertTrue(JSONValidation.isDuration("P6MT20M30S"));
+        assertTrue(JSONValidation.isDuration("P6MT25S"));
+        assertTrue(JSONValidation.isDuration("P5YT25S"));
+        assertTrue(JSONValidation.isDuration("P5Y2MT25S"));
+        assertTrue(JSONValidation.isDuration("P5Y2M1DT25S"));
+        assertTrue(JSONValidation.isDuration("P5Y2M1DT4H6M25S"));
+        assertTrue(JSONValidation.isDuration("PT000000000000000000000000000000000000000000000000000000000000S"));
     }
 
     @Test
     public void shouldRejectInvalidDuration() {
         assertFalse(JSONValidation.isDuration("1D"));
         assertFalse(JSONValidation.isDuration("P20S"));
+        assertFalse(JSONValidation.isDuration("20S"));
+        assertFalse(JSONValidation.isDuration("P"));
+        assertFalse(JSONValidation.isDuration("PT"));
+        assertFalse(JSONValidation.isDuration("P99T1S"));
+        assertFalse(JSONValidation.isDuration("P4Y5"));
+        assertFalse(JSONValidation.isDuration("P4Y5T"));
+        assertFalse(JSONValidation.isDuration("P4Y5T1S"));
+        assertFalse(JSONValidation.isDuration("P4Y5DT"));
+        assertFalse(JSONValidation.isDuration("P4MT"));
+        assertFalse(JSONValidation.isDuration("P4Y1D"));
+        assertFalse(JSONValidation.isDuration("P4M1DT4H2S"));
+        assertFalse(JSONValidation.isDuration("P4M1DT4MS"));
+        assertFalse(JSONValidation.isDuration("P5WT12H"));
+        assertFalse(JSONValidation.isDuration("PT0.25S"));
+        assertFalse(JSONValidation.isDuration(""));
         assertFalse(JSONValidation.isDuration("rubbish"));
         assertFalse(JSONValidation.isDuration(null));
     }
@@ -276,6 +313,43 @@ public class JSONValidationTest {
         assertFalse(JSONValidation.isIPV6("localhost"));
         assertFalse(JSONValidation.isIPV6(""));
         assertFalse(JSONValidation.isIPV6(null));
+    }
+
+    @Test
+    public void shouldAcceptValidJSONPointer() {
+        assertTrue(JSONValidation.isJSONPointer(""));
+        assertTrue(JSONValidation.isJSONPointer("/"));
+        assertTrue(JSONValidation.isJSONPointer("/abc"));
+        assertTrue(JSONValidation.isJSONPointer("/abc/0"));
+    }
+
+    @Test
+    public void shouldRejectInvalidJSONPointer() {
+        assertFalse(JSONValidation.isJSONPointer("abc"));
+        assertFalse(JSONValidation.isJSONPointer("abc/0"));
+        assertFalse(JSONValidation.isJSONPointer(null));
+    }
+
+    @Test
+    public void shouldAcceptValidRelativeJSONPointer() {
+        assertTrue(JSONValidation.isRelativeJSONPointer("0"));
+        assertTrue(JSONValidation.isRelativeJSONPointer("1/0"));
+        assertTrue(JSONValidation.isRelativeJSONPointer("2/highly/nested/objects"));
+        assertTrue(JSONValidation.isRelativeJSONPointer("0#"));
+        assertTrue(JSONValidation.isRelativeJSONPointer("1#"));
+    }
+
+    @Test
+    public void shouldRejectInvalidRelativeJSONPointer() {
+        assertFalse(JSONValidation.isRelativeJSONPointer("abc"));
+        assertFalse(JSONValidation.isRelativeJSONPointer("abc/0"));
+        assertFalse(JSONValidation.isRelativeJSONPointer("/abc/0"));
+        assertFalse(JSONValidation.isRelativeJSONPointer("01/abc/0"));
+        assertFalse(JSONValidation.isRelativeJSONPointer("-1/abc/0"));
+        assertFalse(JSONValidation.isRelativeJSONPointer("0.1"));
+        assertFalse(JSONValidation.isRelativeJSONPointer("0#1"));
+        assertFalse(JSONValidation.isRelativeJSONPointer(""));
+        assertFalse(JSONValidation.isRelativeJSONPointer(null));
     }
 
 }

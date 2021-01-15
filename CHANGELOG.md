@@ -2,6 +2,11 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [1.1] - 2021-01-16
+### Changed
+- added hard-coded validation for `isDuration`, instead of relying on `java.time.Duration`
+- added `isJSONPointer` and `isRelativeJSONPointer`
+
 ## [1.0] - 2020-11-15
 ### Changed
 - `README.md`: added badges

@@ -88,27 +88,39 @@ They return `true` if the value matches the requirements of the specification.
         boolean valid = JSONValidation.isIPV6(str);
 ```
 
+### `json-pointer` validation
+
+```java
+        boolean valid = JSONValidation.isJSONPointer(str);
+```
+
+### `relative-json-pointer` validation
+
+```java
+        boolean valid = JSONValidation.isRelativeJSONPointer(str);
+```
+
 ## Dependency Specification
 
-The latest version of the library is 1.0, and it may be obtained from the Maven Central repository.
+The latest version of the library is 1.1, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.json</groupId>
       <artifactId>json-validation</artifactId>
-      <version>1.0</version>
+      <version>1.1</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    testImplementation 'net.pwall.json:json-validation:1.0'
+    testImplementation 'net.pwall.json:json-validation:1.1'
 ```
 ### Gradle (kts)
 ```kotlin
-    testImplementation("net.pwall.json:json-validation:1.0")
+    testImplementation("net.pwall.json:json-validation:1.1")
 ```
 
 Peter Wall
 
-2020-11-15
+2021-01-16

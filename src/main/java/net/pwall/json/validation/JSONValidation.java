@@ -2,7 +2,7 @@
  * @(#) JSONValidation.java
  *
  * json-validation  Validation functions for JSON Schema validation
- * Copyright (c) 2020 Peter Wall
+ * Copyright (c) 2020, 2021 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,6 @@
 package net.pwall.json.validation;
 
 import java.net.URI;
-import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -91,13 +90,54 @@ public class JSONValidation {
      * @return          {@code true} if the string is correct
      */
     public static boolean isDuration(String string) {
-        try {
-            Duration.parse(string);
-        }
-        catch (Exception ignored) {
+        if (string == null)
             return false;
+        int n = string.length();
+        if (n == 0)
+            return false;
+        int i = 0;
+        if (string.charAt(i++) != 'P')
+            return false;
+        char previous = '\0';
+        while (true) {
+            if (i == n)
+                return previous != '\0';
+            char ch = string.charAt(i++);
+            if (ch == 'T')
+                break;
+            if (!isDigit(ch))
+                return false;
+            do {
+                if (i == n)
+                    return false;
+                ch = string.charAt(i++);
+            } while (isDigit(ch));
+            if (previous == '\0' && ch == 'W')
+                return i == n;
+            if (previous == '\0' && !(ch == 'Y' || ch == 'M' || ch == 'D') ||
+                    previous == 'Y' && ch != 'M' ||
+                    previous == 'M' && ch != 'D')
+                return false;
+            previous = ch;
         }
-        return true;
+        previous = '\0';
+        while (true) {
+            if (i == n)
+                return previous != '\0';
+            char ch = string.charAt(i++);
+            if (!isDigit(ch))
+                return false;
+            do {
+                if (i == n)
+                    return false;
+                ch = string.charAt(i++);
+            } while (isDigit(ch));
+            if (previous == '\0' && !(ch == 'H' || ch == 'M' || ch == 'S') ||
+                    previous == 'H' && ch != 'M' ||
+                    previous == 'M' && ch != 'S')
+                return false;
+            previous = ch;
+        }
     }
 
     /**
@@ -148,10 +188,9 @@ public class JSONValidation {
     public static boolean isUUID(String string) {
         if (string == null)
             return false;
-        int i = 0;
-        int n = string.length();
-        if (n != uuidLength)
+        if (string.length() != uuidLength)
             return false;
+        int i = 0;
         for (int j = 0; j < 4; j++) {
             int dashLocation = uuidDashLocations[j];
             while (i < dashLocation) {
@@ -322,6 +361,42 @@ public class JSONValidation {
             }
         }
         return i == n;
+    }
+
+    /**
+     * Test for conformity to the {@code json-pointer} format type.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isJSONPointer(String string) {
+        return string != null && (string.length() == 0 || string.charAt(0) == '/');
+    }
+
+    /**
+     * Test for conformity to the {@code relative-json-pointer} format type.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isRelativeJSONPointer(String string) {
+        if (string == null)
+            return false;
+        int n = string.length();
+        int i = 0;
+        if (i == n)
+            return false;
+        char ch = string.charAt(i++);
+        if (ch != '0') {
+            if (!isDigit(ch))
+                return false;
+            while (i < n && isDigit(string.charAt(i)))
+                i++;
+        }
+        if (i == n)
+            return true;
+        ch = string.charAt(i++);
+        return ch == '/' || ch == '#' && i == n;
     }
 
     private static boolean isLetterOrDigit(char ch) {
