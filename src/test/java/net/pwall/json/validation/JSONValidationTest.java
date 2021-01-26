@@ -25,10 +25,12 @@
 
 package net.pwall.json.validation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JSONValidationTest {
 
@@ -43,6 +45,7 @@ public class JSONValidationTest {
     public void shouldRejectInvalidDateTime() {
         assertFalse(JSONValidation.isDateTime("2020-08-34T20:32:17+10:00"));
         assertFalse(JSONValidation.isDateTime("2020-08-04T10:32:17X"));
+        assertFalse(JSONValidation.isDateTime("2020-08-04T10:32:17"));
         assertFalse(JSONValidation.isDateTime("2020-08-04"));
         assertFalse(JSONValidation.isDateTime(""));
         assertFalse(JSONValidation.isDateTime(null));
@@ -70,12 +73,14 @@ public class JSONValidationTest {
         assertTrue(JSONValidation.isTime("20:04:37+10:00"));
         assertTrue(JSONValidation.isTime("10:04:37Z"));
         assertTrue(JSONValidation.isTime("20:04:37.123+10:00"));
+        assertTrue(JSONValidation.isTime("20:04:37.1239999999999999999999999999999999999999999999999+10:00"));
     }
 
     @Test
     public void shouldRejectInvalidTime() {
         assertFalse(JSONValidation.isTime("20:04:37"));
         assertFalse(JSONValidation.isTime("10:04:66Z"));
+        assertFalse(JSONValidation.isTime("10:04:66+50"));
         assertFalse(JSONValidation.isTime("rubbish"));
         assertFalse(JSONValidation.isTime(""));
         assertFalse(JSONValidation.isTime(null));
@@ -144,6 +149,10 @@ public class JSONValidationTest {
         assertFalse(JSONValidation.isURI("xxx"));
         assertFalse(JSONValidation.isURI(":xxx"));
         assertFalse(JSONValidation.isURI("http:"));
+        assertFalse(JSONValidation.isURI("http://"));
+        assertFalse(JSONValidation.isURI("schema-2.json"));
+        assertFalse(JSONValidation.isURI("/xxx"));
+        assertFalse(JSONValidation.isURI("#abcd"));
         assertFalse(JSONValidation.isURI(null));
     }
 
@@ -160,6 +169,7 @@ public class JSONValidationTest {
     public void shouldRejectInvalidURIReference() {
         assertFalse(JSONValidation.isURIReference(":xxx"));
         assertFalse(JSONValidation.isURIReference("http:"));
+        assertFalse(JSONValidation.isURIReference("http://"));
         assertFalse(JSONValidation.isURIReference(null));
     }
 
@@ -350,6 +360,44 @@ public class JSONValidationTest {
         assertFalse(JSONValidation.isRelativeJSONPointer("0#1"));
         assertFalse(JSONValidation.isRelativeJSONPointer(""));
         assertFalse(JSONValidation.isRelativeJSONPointer(null));
+    }
+
+    @Test
+    public void shouldDetermineLeapYearCorrectly() {
+        assertFalse(JSONValidation.isLeapYear(2019));
+        assertTrue(JSONValidation.isLeapYear(2020));
+        assertFalse(JSONValidation.isLeapYear(2021));
+        assertFalse(JSONValidation.isLeapYear(1999));
+        assertTrue(JSONValidation.isLeapYear(2000));
+        assertFalse(JSONValidation.isLeapYear(2001));
+        assertFalse(JSONValidation.isLeapYear(1900));
+        assertFalse(JSONValidation.isLeapYear(1800));
+    }
+
+    @Test
+    public void shouldCalculateMonthLengthCorrectly() {
+        assertEquals(31, JSONValidation.monthLength(2021, 1));
+        assertEquals(28, JSONValidation.monthLength(2021, 2));
+        assertEquals(31, JSONValidation.monthLength(2021, 3));
+        assertEquals(30, JSONValidation.monthLength(2021, 4));
+        assertEquals(31, JSONValidation.monthLength(2021, 5));
+        assertEquals(30, JSONValidation.monthLength(2021, 6));
+        assertEquals(31, JSONValidation.monthLength(2021, 7));
+        assertEquals(31, JSONValidation.monthLength(2021, 8));
+        assertEquals(30, JSONValidation.monthLength(2021, 9));
+        assertEquals(31, JSONValidation.monthLength(2021, 10));
+        assertEquals(30, JSONValidation.monthLength(2021, 11));
+        assertEquals(31, JSONValidation.monthLength(2021, 12));
+        assertEquals(29, JSONValidation.monthLength(2020, 2));
+    }
+
+    @Test
+    public void shouldThrowExceptionOnInvalidMonth() {
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class,
+                () -> JSONValidation.monthLength(2021, 0));
+        assertEquals("Month value incorrect - 0", iae.getMessage());
+        iae = assertThrows(IllegalArgumentException.class, () -> JSONValidation.monthLength(2021, 13));
+        assertEquals("Month value incorrect - 13", iae.getMessage());
     }
 
 }

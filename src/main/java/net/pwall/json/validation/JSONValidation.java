@@ -26,14 +26,45 @@
 package net.pwall.json.validation;
 
 import java.net.URI;
-import java.time.format.DateTimeFormatter;
+import java.net.URISyntaxException;
 
 /**
- * Static functions to perform validations for JSON Schema format types.
+ * Static functions to perform validations for JSON Schema format types.  Also included are {@link #isLeapYear(int)} and
+ * {@link #monthLength(int, int)} functions; these are required for date checking and it costs nothing to make them
+ * available for general use.
  *
  * @author  Peter Wall
  */
 public class JSONValidation {
+
+    private static final int[] monthLengths = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+    /**
+     * Determine whether a given year is a leap year (only meaningful for years covered by the Gregorian calendar).
+     *
+     * @param   year    the year
+     * @return          {@code true} if the year is a leap year
+     */
+    public static boolean isLeapYear(int year) {
+        return (year & 3) == 0 && ((year % 100) != 0 || (year % 400) == 0);
+    }
+
+    /**
+     * Calculate the length of a given month (only meaningful for years covered by the Gregorian calendar).
+     *
+     * @param   year    the year
+     * @param   month   the month (must be in the range 1 to 12)
+     * @return          the length of the month in days
+     * @throws  IllegalArgumentException if the month is not in the range 1 to 12
+     */
+    public static int monthLength(int year, int month) {
+        try {
+            return month == 2 && isLeapYear(year) ? 29 : monthLengths[month - 1];
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("Month value incorrect - " + month);
+        }
+    }
 
     /**
      * Test for conformity to the {@code date-time} format type.
@@ -42,13 +73,16 @@ public class JSONValidation {
      * @return          {@code true} if the string is correct
      */
     public static boolean isDateTime(String string) {
-        try {
-            DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(string);
-        }
-        catch (Exception ignored) {
+        if (string == null)
             return false;
-        }
-        return true;
+        if (string.length() < 19)
+            return false;
+        if (!checkDate(string))
+            return false;
+        char ch = string.charAt(10);
+        if (ch != 'T' && ch != 't')
+            return false;
+        return checkTime(string, 11);
     }
 
     /**
@@ -58,13 +92,11 @@ public class JSONValidation {
      * @return          {@code true} if the string is correct
      */
     public static boolean isDate(String string) {
-        try {
-            DateTimeFormatter.ISO_LOCAL_DATE.parse(string);
-        }
-        catch (Exception ignored) {
+        if (string == null)
             return false;
-        }
-        return true;
+        if (string.length() != 10)
+            return false;
+        return checkDate(string);
     }
 
     /**
@@ -74,13 +106,165 @@ public class JSONValidation {
      * @return          {@code true} if the string is correct
      */
     public static boolean isTime(String string) {
-        try {
-            DateTimeFormatter.ISO_OFFSET_TIME.parse(string);
-        }
-        catch (Exception ignored) {
+        if (string == null)
             return false;
+        return checkTime(string, 0);
+    }
+
+    private static boolean checkDate(String string) {
+        int i = 0;
+
+        // year
+
+        char ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        int year = (ch - '0') * 1000;
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        year += (ch - '0') * 100;
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        year += (ch - '0') * 10;
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        year += ch - '0';
+        if (string.charAt(i++) != '-')
+            return false;
+
+        // month
+
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        int month = (ch - '0') * 10;
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        month += ch - '0';
+        if (string.charAt(i++) != '-')
+            return false;
+        if (month == 0 || month > 12)
+            return false;
+
+        // day
+
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        int day = (ch - '0') * 10;
+        ch = string.charAt(i);
+        if (!isDigit(ch))
+            return false;
+        day += ch - '0';
+        return day > 0 && day <= monthLength(year, month);
+    }
+
+    private static boolean checkTime(String string, int start) {
+        int n = string.length();
+        if (start + 8 >= n)
+            return false;
+        int i = start;
+
+        // hours
+
+        char ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        int hour = (ch - '0') * 10;
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        hour += ch - '0';
+        if (hour > 23)
+            return false;
+        if (string.charAt(i++) != ':')
+            return false;
+
+        // minutes
+
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        int minute = (ch - '0') * 10;
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        minute += ch - '0';
+        if (minute > 59)
+            return false;
+        if (string.charAt(i++) != ':')
+            return false;
+
+        // seconds
+
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        int second = (ch - '0') * 10;
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        second += ch - '0';
+        if (!(second <= 59 || minute == 59 && second == 60)) // leap second valid, but probably best avoided
+            return false;
+
+        // fractional seconds
+
+        if (i >= n)
+            return false;
+        ch = string.charAt(i++);
+        if (ch == '.') {
+            if (i >= n)
+                return false;
+            ch = string.charAt(i++);
+            if (!isDigit(ch))
+                return false;
+            do {
+                if (i >= n)
+                    return false;
+                ch = string.charAt(i++);
+            } while (isDigit(ch));
         }
-        return true;
+
+        // offset
+
+        if (ch == 'Z' || ch == 'z')
+            return i == n;
+        if (ch != '+' && ch != '-')
+            return false;
+        if (i + 5 != n)
+            return false;
+
+        // offset hours
+
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        hour = (ch - '0') * 10;
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        hour += ch - '0';
+        if (hour > 23)
+            return false;
+        if (string.charAt(i++) != ':')
+            return false;
+
+        // offset minutes
+
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return false;
+        minute = (ch - '0') * 10;
+        ch = string.charAt(i);
+        if (!isDigit(ch))
+            return false;
+        minute += ch - '0';
+        return minute <= 59;
     }
 
     /**
@@ -147,12 +331,14 @@ public class JSONValidation {
      * @return          {@code true} if the string is correct
      */
     public static boolean isURI(String string) {
+        if (string == null)
+            return false;
         try {
             URI uri = new URI(string);
             if (uri.getScheme() == null)
                 return false;
         }
-        catch (Exception ignored) {
+        catch (URISyntaxException ignored) {
             return false;
         }
         return true;
@@ -165,12 +351,14 @@ public class JSONValidation {
      * @return          {@code true} if the string is correct
      */
     public static boolean isURIReference(String string) {
+        if (string == null)
+            return false;
         URI baseURI = URI.create("http://pwall.net/schema/schema.json");
         try {
             //noinspection ResultOfMethodCallIgnored
             baseURI.resolve(string);
         }
-        catch (Exception ignored) {
+        catch (IllegalArgumentException ignored) {
             return false;
         }
         return true;

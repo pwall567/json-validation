@@ -2,6 +2,13 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [1.2] - 2021-01-26
+### Changed
+- added hard-coded validations for `isDateTime`, `isDate` and `isTime`, instead of relying on
+`java.time.DateTimeFormatter`
+- added `isLeapYear` and `monthLength`
+- switched tests to JUnit 5
+
 ## [1.1] - 2021-01-16
 ### Changed
 - added hard-coded validation for `isDuration`, instead of relying on `java.time.Duration`
