@@ -219,10 +219,23 @@ public class JSONValidationTest {
         assertTrue(JSONValidation.isEmail("very-long-name@1valid"));
         assertTrue(JSONValidation.isEmail("1@valid.com"));
         assertTrue(JSONValidation.isEmail("a+b@valid.abc.def.com"));
+        assertTrue(JSONValidation.isEmail("a#b@valid.abc.def.com"));
+        assertTrue(JSONValidation.isEmail("\"\"@valid"));
+        assertTrue(JSONValidation.isEmail("\"xyz\"@valid"));
+        assertTrue(JSONValidation.isEmail("\"x@z\"@valid"));
+        assertTrue(JSONValidation.isEmail("\"(x@z)\"@valid"));
+        assertTrue(JSONValidation.isEmail("\"(x@z,q)\"@valid"));
+        assertTrue(JSONValidation.isEmail("\"<hello>\"@valid"));
+        assertTrue(JSONValidation.isEmail("\"\\\\\"@valid"));
+        assertTrue(JSONValidation.isEmail("\"\\\"\"@valid"));
     }
 
     @Test
     public void shouldRejectInvalidEmail() {
+        assertFalse(JSONValidation.isEmail(" a@valid"));
+        assertFalse(JSONValidation.isEmail(".a@valid"));
+        assertFalse(JSONValidation.isEmail("a.@valid"));
+        assertFalse(JSONValidation.isEmail("a..b@valid"));
         assertFalse(JSONValidation.isEmail("alpha@@invalid"));
         assertFalse(JSONValidation.isEmail("xyz@invalid-"));
         assertFalse(JSONValidation.isEmail("hello@invalid-.com"));
@@ -231,7 +244,10 @@ public class JSONValidationTest {
         assertFalse(JSONValidation.isEmail("c@invalid.com."));
         assertFalse(JSONValidation.isEmail("d@invalid..com"));
         assertFalse(JSONValidation.isEmail("(xyz)@valid"));
-        assertFalse(JSONValidation.isEmail("abc?@valid.com"));
+        assertFalse(JSONValidation.isEmail("abc\"@valid.com"));
+        assertFalse(JSONValidation.isEmail("\"abc@valid.com"));
+        assertFalse(JSONValidation.isEmail("\"a c\"@valid.com"));
+        assertFalse(JSONValidation.isEmail("\"a\nc\"@valid.com"));
         assertFalse(JSONValidation.isEmail(""));
         assertFalse(JSONValidation.isEmail(null));
     }

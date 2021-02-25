@@ -29,9 +29,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * Static functions to perform validations for JSON Schema format types.  Also included are {@link #isLeapYear(int)} and
- * {@link #monthLength(int, int)} functions; these are required for date checking and it costs nothing to make them
- * available for general use.
+ * Static functions to perform validations for JSON Schema format types.  The requirements are taken from the
+ * <a href="https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.7.3">JSON Schema
+ * Validation</a> specification.
+ *
+ * Also included are {@link #isLeapYear(int)} and {@link #monthLength(int, int)} functions; these are required for date
+ * checking and it costs nothing to make them available for general use.
  *
  * @author  Peter Wall
  */
@@ -67,7 +70,8 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code date-time} format type.
+     * Test for conformity to the {@code date-time} format type.  A string is valid if it conforms to the "date-time"
+     * production in <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
@@ -86,7 +90,8 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code date} format type.
+     * Test for conformity to the {@code date} format type.  A string is valid if it conforms to the "full-date"
+     * production in <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
@@ -100,7 +105,8 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code time} format type.
+     * Test for conformity to the {@code time} format type.  A string is valid if it conforms to the "full-time"
+     * production in <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
@@ -268,7 +274,8 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code duration} format type.
+     * Test for conformity to the {@code duration} format type.  A string is valid if it conforms to the "duration"
+     * production in <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
@@ -325,7 +332,8 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code uri} format type.
+     * Test for conformity to the {@code uri} format type.  A string is valid if it conforms to
+     * <a href="https://tools.ietf.org/html/rfc3986">RFC 3986</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
@@ -345,7 +353,8 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code uri-reference} format type.
+     * Test for conformity to the {@code uri-reference} format type.  A string is valid if it conforms to
+     * <a href="https://tools.ietf.org/html/rfc3986">RFC 3986</a> (either a URI or a relative-reference).
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
@@ -368,7 +377,8 @@ public class JSONValidation {
     private static final int[] uuidDashLocations = { 8, 13, 18, 23 };
 
     /**
-     * Test for conformity to the {@code uuid} format type.
+     * Test for conformity to the {@code uuid} format type.  A string is valid if it conforms to
+     * <a href="https://tools.ietf.org/html/rfc4122">RFC 4122</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
@@ -396,7 +406,8 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code hostname} format type.
+     * Test for conformity to the {@code hostname} format type.  A string is valid if it conforms to
+     * <a href="https://tools.ietf.org/html/rfc1123#section-2.1">RFC 1123, section 2.1</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
@@ -430,24 +441,75 @@ public class JSONValidation {
     /**
      * Test for conformity to the {@code email} format type.
      *
+     * <p>Validation of email addresses is difficult, largely because the specification in
+     * <a href="https://www.ietf.org/rfc/rfc5322.html">RFC 5322</a> makes reference to earlier "obsolete" forms of
+     * email addresses that are expected to be accepted as valid.  This function does not attempt to cover the entire
+     * range of obsolete addresses; instead, it implements a form of validation derived from the regular expression at
+     * the web site <a href="http://emailregex.com/">emailregex.com</a> for the "local-part" (the addressee or mailbox
+     * name), and it uses the hostname validation from <a href="https://tools.ietf.org/html/rfc1123">RFC 1123</a> for
+     * the "domain".</p>
+     *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
     public static boolean isEmail(String string) {
         if (string == null)
             return false;
-        for (int i = 0, n = string.length(); i < n; ) {
-            char ch = string.charAt(i++);
-            if (ch == '@')
-                return i > 0 && isHostname(string, i);
-            if (!(isLetterOrDigit(ch) || ch == '-' || ch == '+' || ch == '.' || ch == '_' || ch == '%'))
+        int n = string.length();
+        if (n == 0)
+            return false;
+        char ch = string.charAt(0);
+        int i = 0;
+        if (ch == '"') {
+            while (true) {
+                if (++i >= n)
+                    return false;
+                ch = string.charAt(i);
+                if (ch == '"')
+                    break;
+                if (ch == '\\') {
+                    if (++i >= n)
+                        return false;
+                    ch = string.charAt(i);
+                    if (!(inRange(ch, 1, 9) || ch == 0xB || ch == 0xC || inRange(ch, 0xE, 0x7F)))
+                        return false;
+                }
+                else {
+                    if (!(inRange(ch, 1, 8) || ch == 0xB || ch == 0xC || inRange(ch, 0xE, 0x1F) || ch == 0x21 ||
+                            inRange(ch, 0x23, 0x5B) || inRange(ch, 0x5D, 0x7F)))
+                        return false;
+                }
+            }
+            if (++i >= n || string.charAt(i) != '@')
                 return false;
         }
-        return false;
+        else {
+            boolean nextMayBeDot = false;
+            do {
+                if (nextMayBeDot) {
+                    if (ch == '.')
+                        nextMayBeDot = false;
+                    else if (!isEmailNameChar(ch))
+                        return false;
+                }
+                else {
+                    if (!isEmailNameChar(ch))
+                        return false;
+                    nextMayBeDot = true;
+                }
+                if (++i >= n)
+                    return false;
+                ch = string.charAt(i);
+            } while (ch != '@');
+            if (!nextMayBeDot)
+                return false;
+        }
+        return isHostname(string, i + 1);
     }
 
     /**
-     * Test for conformity to the {@code ipv4} format type.
+     * Test for conformity to the {@code ipv4} format type.  A string is valid if it conforms to
+     * <a href="https://tools.ietf.org/html/rfc2673#section-3.2">RFC 2673, section 3.2</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
@@ -484,7 +546,8 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code ipv6} format type.
+     * Test for conformity to the {@code ipv6} format type.  A string is valid if it conforms to
+     * <a href="https://tools.ietf.org/html/rfc4291#section-2.2">RFC 4291, section 2.2</a>.
      *
      * <p><b>NOTE:</b> The
      * <a href="https://json-schema.org/draft/2019-09/json-schema-validation.html">JSON Schema Validation</a>
@@ -552,7 +615,8 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code json-pointer} format type.
+     * Test for conformity to the {@code json-pointer} format type.  A string is valid if it conforms to
+     * <a href="https://tools.ietf.org/html/rfc6901#section-5">RFC 6901, section 5</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
@@ -562,7 +626,8 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code relative-json-pointer} format type.
+     * Test for conformity to the {@code relative-json-pointer} format type.  A string is valid if it conforms to
+     * <a href="https://json-schema.org/draft/2019-09/relative-json-pointer.html">Relative JSON Pointers</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
@@ -587,16 +652,26 @@ public class JSONValidation {
         return ch == '/' || ch == '#' && i == n;
     }
 
+    private static boolean inRange(char ch, int lo, int hi) {
+        return ch >= lo && ch <= hi;
+    }
+
     private static boolean isLetterOrDigit(char ch) {
-        return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || isDigit(ch);
+        return inRange(ch, 'a', 'z') || inRange(ch, 'A', 'Z') || isDigit(ch);
     }
 
     private static boolean isHexDigit(char ch) {
-        return isDigit(ch) || ch >= 'a' && ch <= 'f' || ch >= 'A' && ch <= 'F';
+        return isDigit(ch) || inRange(ch, 'a', 'f') || inRange(ch, 'A', 'F');
     }
 
     private static boolean isDigit(char ch) {
-        return ch >= '0' && ch <= '9';
+        return inRange(ch, '0', '9');
+    }
+
+    private static final String emailSpecialChars = "!#$%&'*+/=?^_`{|}~-";
+
+    private static boolean isEmailNameChar(char ch) {
+        return isLetterOrDigit(ch) || ch == '!' || emailSpecialChars.indexOf(ch) >= 0;
     }
 
 }

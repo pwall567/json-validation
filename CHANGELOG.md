@@ -2,6 +2,11 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [1.3] - 2021-02-25
+### Changed
+- modified `isEmail` to use validation derived from [emailregex.com](http://emailregex.com/)
+- added JavaDoc notes on specifications implemented
+
 ## [1.2] - 2021-01-26
 ### Changed
 - added hard-coded validations for `isDateTime`, `isDate` and `isTime`, instead of relying on
