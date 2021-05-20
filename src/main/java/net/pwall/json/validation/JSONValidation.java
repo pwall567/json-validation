@@ -524,10 +524,16 @@ public class JSONValidation {
         int n = string.length();
         int j = 0;
         while (true) {
-            int k = 0;
-            int m = 0;
-            char ch;
+            if (i >= n)
+                return false;
+            char ch = string.charAt(i++);
+            if (!isDigit(ch))
+                return false;
+            int k = 1;
+            int m = ch - '0';
             while (i < n && isDigit(ch = string.charAt(i))) {
+                if (m == 0)
+                    return false;
                 i++;
                 m = m * 10 + ch - '0';
                 if (m > 255)
@@ -535,8 +541,6 @@ public class JSONValidation {
                 if (++k == 3)
                     break;
             }
-            if (k == 0)
-                return false;
             if (++j == 4)
                 break;
             if (i >= n || string.charAt(i++) != '.')

@@ -2,6 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [Unreleased]
+### Changed
+- fixed bug in `isIPV4` - no longer allows leading zeros
+
 ## [1.3] - 2021-02-25
 ### Changed
 - modified `isEmail` to use validation derived from [emailregex.com](http://emailregex.com/)

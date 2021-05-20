@@ -272,6 +272,7 @@ public class JSONValidationTest {
         assertFalse(JSONValidation.isIPV4("192.168.1.abc"));
         assertFalse(JSONValidation.isIPV4("256.1.1.1"));
         assertFalse(JSONValidation.isIPV4("127:0:0:1"));
+        assertFalse(JSONValidation.isIPV4("027.0.0.1"));
         assertFalse(JSONValidation.isIPV4(""));
         assertFalse(JSONValidation.isIPV4(null));
     }
