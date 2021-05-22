@@ -393,6 +393,18 @@ public class JSONValidationTest {
     }
 
     @Test
+    public void shouldAcceptValidRegex() {
+        assertTrue(JSONValidation.isRegex("abc"));
+        assertTrue(JSONValidation.isRegex("^[a-zA-Z_][a-zA-Z0-9_]*$"));
+    }
+
+    @Test
+    public void shouldRejectInvalidRegex() {
+        assertFalse(JSONValidation.isRegex("(abc"));
+        assertFalse(JSONValidation.isRegex("[abc"));
+    }
+
+    @Test
     public void shouldDetermineLeapYearCorrectly() {
         assertFalse(JSONValidation.isLeapYear(2019));
         assertTrue(JSONValidation.isLeapYear(2020));

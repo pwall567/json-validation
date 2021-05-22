@@ -27,6 +27,8 @@ package net.pwall.json.validation;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Static functions to perform validations for JSON Schema format types.  The requirements are taken from the
@@ -695,6 +697,29 @@ public class JSONValidation {
             }
         }
         return ch == '#' && i == n || isJSONPointer(string, i - 1);
+    }
+
+    /**
+     * Test for conformity to the {@code regex} format type.  A string is valid if it conforms to
+     * <a href="https://www.ecma-international.org/ecma-262/11.0">ECMA 262</a> regular expression dialect.
+     *
+     * Since the Java {@link Pattern} class used here implements a dialect very close to, but not identical to the
+     * ECMA 262 variant, it is possible that in rare cases there may be subtle inconsistencies in the results of this
+     * function.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isRegex(String string) {
+        if (string == null)
+            return false;
+        try {
+            Pattern.compile(string);
+        }
+        catch (PatternSyntaxException ignore) {
+            return false;
+        }
+        return true;
     }
 
     private static boolean inRange(char ch, int lo, int hi) {
