@@ -346,12 +346,19 @@ public class JSONValidationTest {
     public void shouldAcceptValidJSONPointer() {
         assertTrue(JSONValidation.isJSONPointer(""));
         assertTrue(JSONValidation.isJSONPointer("/"));
+        assertTrue(JSONValidation.isJSONPointer("/0"));
         assertTrue(JSONValidation.isJSONPointer("/abc"));
         assertTrue(JSONValidation.isJSONPointer("/abc/0"));
+        assertTrue(JSONValidation.isJSONPointer("/abc/~0"));
+        assertTrue(JSONValidation.isJSONPointer("/abc/~1"));
+        assertTrue(JSONValidation.isJSONPointer("/abc/~0~0"));
     }
 
     @Test
     public void shouldRejectInvalidJSONPointer() {
+        assertFalse(JSONValidation.isJSONPointer("/~"));
+        assertFalse(JSONValidation.isJSONPointer("/~2"));
+        assertFalse(JSONValidation.isJSONPointer("/~1~"));
         assertFalse(JSONValidation.isJSONPointer("abc"));
         assertFalse(JSONValidation.isJSONPointer("abc/0"));
         assertFalse(JSONValidation.isJSONPointer(null));
@@ -361,13 +368,19 @@ public class JSONValidationTest {
     public void shouldAcceptValidRelativeJSONPointer() {
         assertTrue(JSONValidation.isRelativeJSONPointer("0"));
         assertTrue(JSONValidation.isRelativeJSONPointer("1/0"));
+        assertTrue(JSONValidation.isRelativeJSONPointer("0-0"));
+        assertTrue(JSONValidation.isRelativeJSONPointer("0-1"));
+        assertTrue(JSONValidation.isRelativeJSONPointer("0+1"));
         assertTrue(JSONValidation.isRelativeJSONPointer("2/highly/nested/objects"));
         assertTrue(JSONValidation.isRelativeJSONPointer("0#"));
+        assertTrue(JSONValidation.isRelativeJSONPointer("0-1#"));
         assertTrue(JSONValidation.isRelativeJSONPointer("1#"));
     }
 
     @Test
     public void shouldRejectInvalidRelativeJSONPointer() {
+        assertFalse(JSONValidation.isRelativeJSONPointer("01"));
+        assertFalse(JSONValidation.isRelativeJSONPointer("0-01"));
         assertFalse(JSONValidation.isRelativeJSONPointer("abc"));
         assertFalse(JSONValidation.isRelativeJSONPointer("abc/0"));
         assertFalse(JSONValidation.isRelativeJSONPointer("/abc/0"));

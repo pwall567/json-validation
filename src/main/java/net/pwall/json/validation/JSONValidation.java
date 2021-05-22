@@ -626,12 +626,29 @@ public class JSONValidation {
      * @return          {@code true} if the string is correct
      */
     public static boolean isJSONPointer(String string) {
-        return string != null && (string.length() == 0 || string.charAt(0) == '/');
+        if (string == null)
+            return false;
+        return isJSONPointer(string, 0);
+    }
+
+    private static boolean isJSONPointer(String string, int i) {
+        int n = string.length();
+        if (i >= n)
+            return true;
+        if (string.charAt(i++) != '/')
+            return false;
+        while (i < n) {
+            if (string.charAt(i++) == '~') {
+                if (!(i < n && inRange(string.charAt(i++), '0', '1')))
+                    return false;
+            }
+        }
+        return true;
     }
 
     /**
      * Test for conformity to the {@code relative-json-pointer} format type.  A string is valid if it conforms to
-     * <a href="https://json-schema.org/draft/2019-09/relative-json-pointer.html">Relative JSON Pointers</a>.
+     * <a href="https://json-schema.org/draft/2020-12/relative-json-pointer.html">Relative JSON Pointers</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
@@ -644,16 +661,40 @@ public class JSONValidation {
         if (i == n)
             return false;
         char ch = string.charAt(i++);
-        if (ch != '0') {
+        if (ch == '0') {
+            if (i >= n)
+                return true;
+            ch = string.charAt(i++);
+        }
+        else {
             if (!isDigit(ch))
                 return false;
-            while (i < n && isDigit(string.charAt(i)))
-                i++;
+            do {
+                if (i >= n)
+                    return true;
+                ch = string.charAt(i++);
+            } while (isDigit(ch));
         }
-        if (i == n)
-            return true;
-        ch = string.charAt(i++);
-        return ch == '/' || ch == '#' && i == n;
+        if (ch == '+' || ch == '-') {
+            if (i >= n)
+                return false;
+            ch = string.charAt(i++);
+            if (ch == '0') {
+                if (i >= n)
+                    return true;
+                ch = string.charAt(i++);
+            }
+            else {
+                if (!isDigit(ch))
+                    return false;
+                do {
+                    if (i >= n)
+                        return true;
+                    ch = string.charAt(i++);
+                } while (isDigit(ch));
+            }
+        }
+        return ch == '#' && i == n || isJSONPointer(string, i - 1);
     }
 
     private static boolean inRange(char ch, int lo, int hi) {

@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ## [Unreleased]
 ### Changed
 - fixed bug in `isIPV4` - no longer allows leading zeros
+- improved implementation of `isJSONPointer` and `isRelativeJSONPointer`
 
 ## [1.3] - 2021-02-25
 ### Changed
