@@ -101,6 +101,12 @@ They return `true` if the value matches the requirements of the specification (t
         boolean valid = JSONValidation.isRelativeJSONPointer(str);
 ```
 
+### `regex` validation
+
+```java
+        boolean valid = JSONValidation.isRegex(str);
+```
+
 ## Additional Functions
 
 In order to perform date validations, the library contains additional static functions related to dates.
@@ -132,25 +138,25 @@ long list of transitive dependencies.
 
 ## Dependency Specification
 
-The latest version of the library is 1.3, and it may be obtained from the Maven Central repository.
+The latest version of the library is 1.4, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.json</groupId>
       <artifactId>json-validation</artifactId>
-      <version>1.3</version>
+      <version>1.4</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    testImplementation 'net.pwall.json:json-validation:1.3'
+    testImplementation 'net.pwall.json:json-validation:1.4'
 ```
 ### Gradle (kts)
 ```kotlin
-    testImplementation("net.pwall.json:json-validation:1.3")
+    testImplementation("net.pwall.json:json-validation:1.4")
 ```
 
 Peter Wall
 
-2021-02-25
+2021-05-22

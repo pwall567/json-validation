@@ -2,7 +2,7 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## [Unreleased]
+## [1.4] - 2021-05-22
 ### Changed
 - fixed bug in `isIPV4` - no longer allows leading zeros
 - improved implementation of `isJSONPointer` and `isRelativeJSONPointer`
