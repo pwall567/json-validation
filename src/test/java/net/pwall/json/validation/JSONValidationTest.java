@@ -228,10 +228,13 @@ public class JSONValidationTest {
         assertTrue(JSONValidation.isEmail("\"<hello>\"@valid"));
         assertTrue(JSONValidation.isEmail("\"\\\\\"@valid"));
         assertTrue(JSONValidation.isEmail("\"\\\"\"@valid"));
+        assertTrue(JSONValidation.isEmail("!a@valid"));
+        assertTrue(JSONValidation.isEmail("a!@valid"));
     }
 
     @Test
     public void shouldRejectInvalidEmail() {
+        assertFalse(JSONValidation.isEmail("@valid"));
         assertFalse(JSONValidation.isEmail(" a@valid"));
         assertFalse(JSONValidation.isEmail(".a@valid"));
         assertFalse(JSONValidation.isEmail("a.@valid"));

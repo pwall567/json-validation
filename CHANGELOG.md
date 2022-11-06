@@ -2,6 +2,13 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [1.5] - 2022-11-06
+### Changed
+- simplified and improved efficiency (by loop unrolling) of `isUUID`
+- `pom.xml`: updated test dependency versions
+- corrected reference in JavaDoc
+- minor changes to README
+
 ## [1.4] - 2021-05-22
 ### Changed
 - fixed bug in `isIPV4` - no longer allows leading zeros

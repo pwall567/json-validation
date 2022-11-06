@@ -1,6 +1,6 @@
 # json-validation
 
-[![Build Status](https://travis-ci.org/pwall567/json-validation.svg?branch=main)](https://travis-ci.org/pwall567/json-validation)
+[![Build Status](https://travis-ci.com/pwall567/json-validation.svg?branch=main)](https://app.travis-ci.com/github/pwall567/json-validation)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Maven Central](https://img.shields.io/maven-central/v/net.pwall.json/json-validation?label=Maven%20Central)](https://search.maven.org/search?q=g:%22net.pwall.json%22%20AND%20a:%22json-validation%22)
 
@@ -9,13 +9,14 @@ Validation functions for JSON Schema validation
 ## Background
 
 This library performs the validations required for some of the JSON Schema `format` validations as defined in
-[JSON Schema Validation](https://json-schema.org/draft/2019-09/json-schema-validation.html) Section 7.3.
+[JSON Schema Validation](https://json-schema.org/draft/2020-12/json-schema-validation.html)
+[Section 7.3](https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.7.3).
 
-The functions are provided in the form of a simple library to simplify their use in code generated from JSON Schema
+The functions are provided in the form of a standalone library to simplify their use in code generated from JSON Schema
 specification files.
 
-Not all of the functions defined in the specification are included in the initial version; more may be added in due
-course.
+Most but not all of the functions defined in the specification are included in the initial version; the remaining few
+may be added in due course.
 
 ## Quick Start
 
@@ -138,25 +139,25 @@ long list of transitive dependencies.
 
 ## Dependency Specification
 
-The latest version of the library is 1.4, and it may be obtained from the Maven Central repository.
+The latest version of the library is 1.5, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.json</groupId>
       <artifactId>json-validation</artifactId>
-      <version>1.4</version>
+      <version>1.5</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    testImplementation 'net.pwall.json:json-validation:1.4'
+    implementation 'net.pwall.json:json-validation:1.5'
 ```
 ### Gradle (kts)
 ```kotlin
-    testImplementation("net.pwall.json:json-validation:1.4")
+    implementation("net.pwall.json:json-validation:1.5")
 ```
 
 Peter Wall
 
-2021-05-22
+2022-11-06

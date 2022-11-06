@@ -2,7 +2,7 @@
  * @(#) JSONValidation.java
  *
  * json-validation  Validation functions for JSON Schema validation
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2020, 2021, 2022 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -277,7 +277,7 @@ public class JSONValidation {
 
     /**
      * Test for conformity to the {@code duration} format type.  A string is valid if it conforms to the "duration"
-     * production in <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
+     * production in <a href="https://tools.ietf.org/html/rfc3339#appendix-A">RFC 3339, Appendix A</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
@@ -375,8 +375,11 @@ public class JSONValidation {
         return true;
     }
 
-    private static final int uuidLength = 36;
-    private static final int[] uuidDashLocations = { 8, 13, 18, 23 };
+    private static final int uuidDash1 = 8;
+    private static final int uuidDash2 = uuidDash1 + 1 + 4;
+    private static final int uuidDash3 = uuidDash2 + 1 + 4;
+    private static final int uuidDash4 = uuidDash3 + 1 + 4;
+    private static final int uuidLength = uuidDash4 + 1 + 12;
 
     /**
      * Test for conformity to the {@code uuid} format type.  A string is valid if it conforms to
@@ -386,24 +389,37 @@ public class JSONValidation {
      * @return          {@code true} if the string is correct
      */
     public static boolean isUUID(String string) {
-        if (string == null)
-            return false;
-        if (string.length() != uuidLength)
+        if (string == null || string.length() != uuidLength)
             return false;
         int i = 0;
-        for (int j = 0; j < 4; j++) {
-            int dashLocation = uuidDashLocations[j];
-            while (i < dashLocation) {
-                if (!isHexDigit(string.charAt(i++)))
-                    return false;
-            }
-            if (string.charAt(i++) != '-')
-                return false;
-        }
-        while (i < uuidLength) {
+        do {
             if (!isHexDigit(string.charAt(i++)))
                 return false;
-        }
+        } while (i < uuidDash1);
+        if (string.charAt(i++) != '-')
+            return false;
+        do {
+            if (!isHexDigit(string.charAt(i++)))
+                return false;
+        } while (i < uuidDash2);
+        if (string.charAt(i++) != '-')
+            return false;
+        do {
+            if (!isHexDigit(string.charAt(i++)))
+                return false;
+        } while (i < uuidDash3);
+        if (string.charAt(i++) != '-')
+            return false;
+        do {
+            if (!isHexDigit(string.charAt(i++)))
+                return false;
+        } while (i < uuidDash4);
+        if (string.charAt(i++) != '-')
+            return false;
+        do {
+            if (!isHexDigit(string.charAt(i++)))
+                return false;
+        } while (i < uuidLength);
         return true;
     }
 
@@ -741,7 +757,7 @@ public class JSONValidation {
     private static final String emailSpecialChars = "!#$%&'*+/=?^_`{|}~-";
 
     private static boolean isEmailNameChar(char ch) {
-        return isLetterOrDigit(ch) || ch == '!' || emailSpecialChars.indexOf(ch) >= 0;
+        return isLetterOrDigit(ch) || emailSpecialChars.indexOf(ch) >= 0;
     }
 
 }
