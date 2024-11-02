@@ -2,6 +2,18 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.0] - 2024-11-02
+### Added
+- `build.yml`, `deploy.yml`: converted project to GitHub Actions
+### Changed
+- updated all functions to take `CharSequence` instead of `String`
+- added `validations` table
+- reorganised date/time validations, added `isLocalDateTime()`, `isLocalTime()`
+- added `isURITemplate()`
+- `pom.xml`, tests: reverted from Junit 5 to Junit 4 (more stable)
+### Removed
+- `.travis.yml`
+
 ## [1.5] - 2022-11-06
 ### Changed
 - simplified and improved efficiency (by loop unrolling) of `isUUID`

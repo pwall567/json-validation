@@ -2,7 +2,7 @@
  * @(#) JSONValidation.java
  *
  * json-validation  Validation functions for JSON Schema validation
- * Copyright (c) 2020, 2021, 2022 Peter Wall
+ * Copyright (c) 2020, 2021, 2022, 2024 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,20 +27,50 @@ package net.pwall.json.validation;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * Static functions to perform validations for JSON Schema format types.  The requirements are taken from the
- * <a href="https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.7.3">JSON Schema
- * Validation</a> specification.
+ * Static functions to perform data validations, principally for JSON Schema format validation.
  *
- * Also included are {@link #isLeapYear(int)} and {@link #monthLength(int, int)} functions; these are required for date
- * checking and it costs nothing to make them available for general use.
+ * <p>The original requirements are taken from the
+ * <a href="https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.7.3">JSON Schema
+ * Validation</a> specification.</p>
+ *
+ * <p>There are also additional validations for two unofficial types {@code local-date-time} and {@code local-time};
+ * these allow for validation of date-time or time strings that do not include time zone information.</p>
+ *
+ * <p>Also included are {@link #isLeapYear(int)} and {@link #monthLength(int, int)} functions; these are required for
+ * date checking and it costs nothing to make them available for general use.</p>
  *
  * @author  Peter Wall
  */
 public class JSONValidation {
+
+    /** Table of implemented validations. */
+    public static Map<String, Predicate<String>> validations = new HashMap<>();
+
+    static {
+        validations.put("date-time", JSONValidation::isDateTime);
+        validations.put("date", JSONValidation::isDate);
+        validations.put("time", JSONValidation::isTime);
+        validations.put("duration", JSONValidation::isDuration);
+        validations.put("uri", JSONValidation::isURI);
+        validations.put("uri-reference", JSONValidation::isURIReference);
+        validations.put("uri-template", JSONValidation::isURITemplate);
+        validations.put("uuid", JSONValidation::isUUID);
+        validations.put("hostname", JSONValidation::isHostname);
+        validations.put("email", JSONValidation::isEmail);
+        validations.put("ipv4", JSONValidation::isIPV4);
+        validations.put("ipv6", JSONValidation::isIPV6);
+        validations.put("json-pointer", JSONValidation::isJSONPointer);
+        validations.put("relative-json-pointer", JSONValidation::isRelativeJSONPointer);
+        validations.put("regex", JSONValidation::isRegex);
+        // not yet implemented: idn-email, idn-hostname, iri, iri-reference
+    }
 
     private static final int[] monthLengths = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
@@ -72,13 +102,14 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code date-time} format type.  A string is valid if it conforms to the "date-time"
-     * production in <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
+     * Test for conformity to the {@code date-time} format type.  A string is valid if it conforms to the
+     * {@code date-time} production in
+     * <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
-    public static boolean isDateTime(String string) {
+    public static boolean isDateTime(CharSequence string) {
         if (string == null)
             return false;
         if (string.length() < 19)
@@ -92,13 +123,35 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code date} format type.  A string is valid if it conforms to the "full-date"
+     * Test for conformity to an unofficial {@code local-date-time} type (not part of the JSON Schema Validation
+     * Specification).  A string is valid if it conforms to a new production {@code [full-date "T" partial-time]} based
+     * on <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isLocalDateTime(CharSequence string) {
+        if (string == null)
+            return false;
+        int n = string.length();
+        if (n < 19)
+            return false;
+        if (!checkDate(string))
+            return false;
+        char ch = string.charAt(10);
+        if (ch != 'T' && ch != 't')
+            return false;
+        return checkLocalTime(string, 11) == n;
+    }
+
+    /**
+     * Test for conformity to the {@code date} format type.  A string is valid if it conforms to the {@code full-date}
      * production in <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
-    public static boolean isDate(String string) {
+    public static boolean isDate(CharSequence string) {
         if (string == null)
             return false;
         if (string.length() != 10)
@@ -107,19 +160,33 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code time} format type.  A string is valid if it conforms to the "full-time"
+     * Test for conformity to the {@code time} format type.  A string is valid if it conforms to the {@code full-time}
      * production in <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
-    public static boolean isTime(String string) {
+    public static boolean isTime(CharSequence string) {
         if (string == null)
             return false;
         return checkTime(string, 0);
     }
 
-    private static boolean checkDate(String string) {
+    /**
+     * Test for conformity to an unofficial {@code local-time} type (not part of the JSON Schema Validation
+     * Specification).  A string is valid if it conforms to the {@code partial-time} production in
+     * <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isLocalTime(CharSequence string) {
+        if (string == null)
+            return false;
+        return checkLocalTime(string, 0) == string.length();
+    }
+
+    private static boolean checkDate(CharSequence string) {
         int i = 0;
 
         // year
@@ -171,72 +238,81 @@ public class JSONValidation {
         return day > 0 && day <= monthLength(year, month);
     }
 
-    private static boolean checkTime(String string, int start) {
+    private static int checkLocalTime(CharSequence string, int start) {
         int n = string.length();
-        if (start + 8 >= n)
-            return false;
+        if (start + 8 > n)
+            return -1;
         int i = start;
 
         // hours
 
         char ch = string.charAt(i++);
         if (!isDigit(ch))
-            return false;
+            return -1;
         int hour = (ch - '0') * 10;
         ch = string.charAt(i++);
         if (!isDigit(ch))
-            return false;
+            return -1;
         hour += ch - '0';
         if (hour > 23)
-            return false;
+            return -1;
         if (string.charAt(i++) != ':')
-            return false;
+            return -1;
 
         // minutes
 
         ch = string.charAt(i++);
         if (!isDigit(ch))
-            return false;
+            return -1;
         int minute = (ch - '0') * 10;
         ch = string.charAt(i++);
         if (!isDigit(ch))
-            return false;
+            return -1;
         minute += ch - '0';
         if (minute > 59)
-            return false;
+            return -1;
         if (string.charAt(i++) != ':')
-            return false;
+            return -1;
 
         // seconds
 
         ch = string.charAt(i++);
         if (!isDigit(ch))
-            return false;
+            return -1;
         int second = (ch - '0') * 10;
         ch = string.charAt(i++);
         if (!isDigit(ch))
-            return false;
+            return -1;
         second += ch - '0';
         if (!(second <= 59 || minute == 59 && second == 60)) // leap second valid, but probably best avoided
-            return false;
+            return -1;
 
         // fractional seconds
 
         if (i >= n)
-            return false;
+            return i;
         ch = string.charAt(i++);
-        if (ch == '.') {
+        if (ch != '.')
+            return i - 1;
+        if (i >= n)
+            return -1;
+        ch = string.charAt(i++);
+        if (!isDigit(ch))
+            return -1;
+        do {
             if (i >= n)
-                return false;
+                return i;
             ch = string.charAt(i++);
-            if (!isDigit(ch))
-                return false;
-            do {
-                if (i >= n)
-                    return false;
-                ch = string.charAt(i++);
-            } while (isDigit(ch));
-        }
+        } while (isDigit(ch));
+        return i - 1;
+    }
+
+    private static boolean checkTime(CharSequence string, int start) {
+        int n = string.length();
+        int i = checkLocalTime(string, start);
+        if (i < 0 || i >= n)
+            return false;
+        char ch = string.charAt(i++);
 
         // offset
 
@@ -252,7 +328,7 @@ public class JSONValidation {
         ch = string.charAt(i++);
         if (!isDigit(ch))
             return false;
-        hour = (ch - '0') * 10;
+        int hour = (ch - '0') * 10;
         ch = string.charAt(i++);
         if (!isDigit(ch))
             return false;
@@ -267,7 +343,7 @@ public class JSONValidation {
         ch = string.charAt(i++);
         if (!isDigit(ch))
             return false;
-        minute = (ch - '0') * 10;
+        int minute = (ch - '0') * 10;
         ch = string.charAt(i);
         if (!isDigit(ch))
             return false;
@@ -276,13 +352,13 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code duration} format type.  A string is valid if it conforms to the "duration"
-     * production in <a href="https://tools.ietf.org/html/rfc3339#appendix-A">RFC 3339, Appendix A</a>.
+     * Test for conformity to the {@code duration} format type.  A string is valid if it conforms to the
+     * {@code duration} production in <a href="https://tools.ietf.org/html/rfc3339#appendix-A">RFC 3339, Appendix A</a>.
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
-    public static boolean isDuration(String string) {
+    public static boolean isDuration(CharSequence string) {
         if (string == null)
             return false;
         int n = string.length();
@@ -340,11 +416,11 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
-    public static boolean isURI(String string) {
+    public static boolean isURI(CharSequence string) {
         if (string == null)
             return false;
         try {
-            URI uri = new URI(string);
+            URI uri = new URI(string.toString());
             if (uri.getScheme() == null)
                 return false;
         }
@@ -361,16 +437,108 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
-    public static boolean isURIReference(String string) {
+    public static boolean isURIReference(CharSequence string) {
         if (string == null)
             return false;
         URI baseURI = URI.create("http://pwall.net/schema/schema.json");
         try {
             //noinspection ResultOfMethodCallIgnored
-            baseURI.resolve(string);
+            baseURI.resolve(string.toString());
         }
         catch (IllegalArgumentException ignored) {
             return false;
+        }
+        return true;
+    }
+
+    /**
+     * Test for conformity to the {@code uri-template} format type.  A string is valid if it conforms to
+     * <a href="https://www.rfc-editor.org/rfc/rfc6570.html">RFC 6570</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isURITemplate(CharSequence string) {
+        if (string == null)
+            return false;
+        int n = string.length();
+        int i = 0;
+        while (i < n) {
+            char ch = string.charAt(i++);
+            if (ch == '%') {
+                if (i + 2 > n || !isHexDigit(string.charAt(i)) || !isHexDigit(string.charAt(i + 1)))
+                    return false;
+                i += 2;
+            }
+            else if (ch == '{') {
+                if (i >= n)
+                    return false;
+                ch = string.charAt(i++);
+                if (ch == '+' || ch == '#' || ch == '.' || ch == '/' || ch == ';' || ch == '?' || ch == '&') {
+                    if (i >= n)
+                        return false;
+                    ch = string.charAt(i++);
+                }
+                while (true) { // loop for each variable in a comma-separated list of variables
+                    while (true) { // loop for each component of a dot-separated variable name
+                        int varStart = i;
+                        while (true) { // loop for each character or percent sequence in a variable name component
+                            if (ch == '%') {
+                                if (i + 2 > n || !isHexDigit(string.charAt(i)) || !isHexDigit(string.charAt(i + 1)))
+                                    return false;
+                                i += 2;
+                            }
+                            else if (!isValidURITemplateVariableChar(ch))
+                                break;
+                            if (i >= n)
+                                return false;
+                            ch = string.charAt(i++);
+                        }
+                        if (i == varStart)
+                            return false;
+                        if (ch != '.')
+                            break;
+                        if (i >= n)
+                            return false;
+                        ch = string.charAt(i++);
+                    }
+                    boolean starSeen = false;
+                    if (ch == '*') {
+                        if (i >= n)
+                            return false;
+                        ch = string.charAt(i++);
+                        starSeen = true;
+                    }
+                    if (ch == ':') {
+                        if (i >= n)
+                            return false;
+                        ch = string.charAt(i++);
+                        int numberStart = i;
+                        while (isDigit(ch)) {
+                            if (i >= n)
+                                return false;
+                            ch = string.charAt(i++);
+                        }
+                        if (i == numberStart)
+                            return false;
+                    }
+                    if (!starSeen && ch == '*') {
+                        if (i >= n)
+                            return false;
+                        ch = string.charAt(i++);
+                    }
+                    if (ch != ',')
+                        break;
+                    if (i >= n)
+                        return false;
+                    ch = string.charAt(i++);
+                }
+                if (ch != '}')
+                    return false;
+            }
+            else if (!isValidURITemplateTextChar(ch)) {
+                return false;
+            }
         }
         return true;
     }
@@ -388,7 +556,7 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
-    public static boolean isUUID(String string) {
+    public static boolean isUUID(CharSequence string) {
         if (string == null || string.length() != uuidLength)
             return false;
         int i = 0;
@@ -430,13 +598,13 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
-    public static boolean isHostname(String string) {
+    public static boolean isHostname(CharSequence string) {
         if (string == null)
             return false;
         return isHostname(string, 0);
     }
 
-    private static boolean isHostname(String string, int i) {
+    private static boolean isHostname(CharSequence string, int i) {
         boolean nextMayBeDashOrDot = false;
         int n = string.length();
         while (i < n) {
@@ -460,17 +628,17 @@ public class JSONValidation {
      * Test for conformity to the {@code email} format type.
      *
      * <p>Validation of email addresses is difficult, largely because the specification in
-     * <a href="https://www.ietf.org/rfc/rfc5322.html">RFC 5322</a> makes reference to earlier "obsolete" forms of
-     * email addresses that are expected to be accepted as valid.  This function does not attempt to cover the entire
-     * range of obsolete addresses; instead, it implements a form of validation derived from the regular expression at
-     * the web site <a href="http://emailregex.com/">emailregex.com</a> for the "local-part" (the addressee or mailbox
-     * name), and it uses the hostname validation from <a href="https://tools.ietf.org/html/rfc1123">RFC 1123</a> for
-     * the "domain".</p>
+     * <a href="https://www.ietf.org/rfc/rfc5322.html">RFC 5322</a> makes reference to earlier &ldquo;obsolete&rdquo;
+     * forms of email addresses that are expected to be accepted as valid.  This function does not attempt to cover the
+     * entire range of obsolete addresses; instead, it implements a form of validation derived from the regular
+     * expression at the web site <a href="http://emailregex.com/">{@code emailregex.com}</a> for the
+     * &ldquo;local-part&rdquo; (the addressee or mailbox name), and it uses the hostname validation from
+     * <a href="https://tools.ietf.org/html/rfc1123">RFC 1123</a> for the &ldquo;domain&rdquo;.</p>
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
-    public static boolean isEmail(String string) {
+    public static boolean isEmail(CharSequence string) {
         if (string == null)
             return false;
         int n = string.length();
@@ -532,13 +700,13 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
-    public static boolean isIPV4(String string) {
+    public static boolean isIPV4(CharSequence string) {
         if (string == null)
             return false;
         return isIPV4(string, 0);
     }
 
-    private static boolean isIPV4(String string, int i) {
+    private static boolean isIPV4(CharSequence string, int i) {
         int n = string.length();
         int j = 0;
         while (true) {
@@ -573,18 +741,18 @@ public class JSONValidation {
      *
      * <p><b>NOTE:</b> The
      * <a href="https://json-schema.org/draft/2019-09/json-schema-validation.html">JSON Schema Validation</a>
-     * specification says (&sect; 7.3.4) that a string conforming to the {@code ipv6} format must be an "IPv6 address
-     * as defined in <a href="https://tools.ietf.org/html/rfc4291">RFC 4291, section 2.2</a>".  Subsequent to RFC 4291,
-     * <a href="https://tools.ietf.org/html/rfc5952">RFC 5952</a> recommended stricter restrictions on the
+     * specification says (&sect; 7.3.4) that a string conforming to the {@code ipv6} format must be an &ldquo;IPv6
+     * address as defined in <a href="https://tools.ietf.org/html/rfc4291">RFC 4291, section 2.2</a>&rdquo;.  Subsequent
+     * to RFC 4291, <a href="https://tools.ietf.org/html/rfc5952">RFC 5952</a> recommended tighter restrictions on the
      * representation of IPV6 addresses, including mandating the use of lower case for all alpha characters, and
-     * prohibiting the use of "{@code ::}" to compress a single zero 16-bit field.  Because the JSON Schema Validation
-     * specification refers only to RFC 4291, not RFC 5952, this function does not implement the stricter restrictions
-     * of the later document.</p>
+     * prohibiting the use of &ldquo;{@code ::}&rdquo; to compress a single zero 16-bit field.  Because the JSON Schema
+     * Validation specification refers only to RFC 4291, not RFC 5952, this function does not implement the tighter
+     * restrictions of the later document.</p>
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
-    public static boolean isIPV6(String string) {
+    public static boolean isIPV6(CharSequence string) {
         if (string == null)
             return false;
         int n = string.length();
@@ -643,13 +811,13 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
-    public static boolean isJSONPointer(String string) {
+    public static boolean isJSONPointer(CharSequence string) {
         if (string == null)
             return false;
         return isJSONPointer(string, 0);
     }
 
-    private static boolean isJSONPointer(String string, int i) {
+    private static boolean isJSONPointer(CharSequence string, int i) {
         int n = string.length();
         if (i >= n)
             return true;
@@ -671,7 +839,7 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
-    public static boolean isRelativeJSONPointer(String string) {
+    public static boolean isRelativeJSONPointer(CharSequence string) {
         if (string == null)
             return false;
         int n = string.length();
@@ -716,21 +884,21 @@ public class JSONValidation {
     }
 
     /**
-     * Test for conformity to the {@code regex} format type.  A string is valid if it conforms to
+     * Test for conformity to the {@code regex} format type.  A string is valid if it conforms to the
      * <a href="https://www.ecma-international.org/ecma-262/11.0">ECMA 262</a> regular expression dialect.
      *
-     * Since the Java {@link Pattern} class used here implements a dialect very close to, but not identical to the
+     * <p>Since the Java {@link Pattern} class used here implements a dialect very close to, but not identical to the
      * ECMA 262 variant, it is possible that in rare cases there may be subtle inconsistencies in the results of this
-     * function.
+     * function.</p>
      *
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
-    public static boolean isRegex(String string) {
+    public static boolean isRegex(CharSequence string) {
         if (string == null)
             return false;
         try {
-            Pattern.compile(string);
+            Pattern.compile(string.toString());
         }
         catch (PatternSyntaxException ignore) {
             return false;
@@ -758,6 +926,16 @@ public class JSONValidation {
 
     private static boolean isEmailNameChar(char ch) {
         return isLetterOrDigit(ch) || emailSpecialChars.indexOf(ch) >= 0;
+    }
+
+    private static final String uriTemplateIllegalChars = "\"%'<>\\^`|}";
+
+    private static boolean isValidURITemplateTextChar(char ch) {
+        return !(inRange(ch, 0, 0x20) || uriTemplateIllegalChars.indexOf(ch) >= 0 || inRange(ch, 0x7F, 0xBF));
+    }
+
+    private static boolean isValidURITemplateVariableChar(char ch) {
+        return isLetterOrDigit(ch) || ch == '_';
     }
 
 }

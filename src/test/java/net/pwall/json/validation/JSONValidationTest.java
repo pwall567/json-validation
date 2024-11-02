@@ -2,7 +2,7 @@
  * @(#) JSONValidationTest.java
  *
  * json-validation  Validation functions for JSON Schema validation
- * Copyright (c) 2020, 2021 Peter Wall
+ * Copyright (c) 2020, 2021, 2024 Peter Wall
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,12 @@
 
 package net.pwall.json.validation;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 public class JSONValidationTest {
 
@@ -45,10 +45,28 @@ public class JSONValidationTest {
     public void shouldRejectInvalidDateTime() {
         assertFalse(JSONValidation.isDateTime("2020-08-34T20:32:17+10:00"));
         assertFalse(JSONValidation.isDateTime("2020-08-04T10:32:17X"));
-        assertFalse(JSONValidation.isDateTime("2020-08-04T10:32:17"));
+        assertFalse(JSONValidation.isDateTime("2020-08-04T24:32:17"));
+        assertFalse(JSONValidation.isDateTime("2020-08-00T20:32:17"));
         assertFalse(JSONValidation.isDateTime("2020-08-04"));
         assertFalse(JSONValidation.isDateTime(""));
         assertFalse(JSONValidation.isDateTime(null));
+    }
+
+    @Test
+    public void shouldAcceptValidLocalDateTime() {
+        assertTrue(JSONValidation.isLocalDateTime("2020-08-04T20:32:17"));
+        assertTrue(JSONValidation.isLocalDateTime("2020-08-04T10:32:17.123"));
+    }
+
+    @Test
+    public void shouldRejectInvalidLocalDateTime() {
+        assertFalse(JSONValidation.isLocalDateTime("2020-08-34T20:32:17"));
+        assertFalse(JSONValidation.isLocalDateTime("2020-08-04T20:32:1"));
+        assertFalse(JSONValidation.isLocalDateTime("2020-08-04T20:32:170"));
+        assertFalse(JSONValidation.isLocalDateTime("2020-08-04T10:32:17X"));
+        assertFalse(JSONValidation.isLocalDateTime("2020-08-04"));
+        assertFalse(JSONValidation.isLocalDateTime(""));
+        assertFalse(JSONValidation.isLocalDateTime(null));
     }
 
     @Test
@@ -81,6 +99,27 @@ public class JSONValidationTest {
         assertFalse(JSONValidation.isTime("20:04:37"));
         assertFalse(JSONValidation.isTime("10:04:66Z"));
         assertFalse(JSONValidation.isTime("10:04:66+50"));
+        assertFalse(JSONValidation.isTime("rubbish"));
+        assertFalse(JSONValidation.isTime(""));
+        assertFalse(JSONValidation.isTime(null));
+    }
+
+    @Test
+    public void shouldAcceptValidLocalTime() {
+        assertTrue(JSONValidation.isLocalTime("20:04:37"));
+        assertTrue(JSONValidation.isLocalTime("10:04:37"));
+        assertTrue(JSONValidation.isLocalTime("20:04:37.123"));
+        assertTrue(JSONValidation.isLocalTime("20:04:37.1239999999999999999999999999999999999999999999999"));
+    }
+
+    @Test
+    public void shouldRejectInvalidLocalTime() {
+        assertFalse(JSONValidation.isLocalTime("20:04:3"));
+        assertFalse(JSONValidation.isLocalTime("20:04:370"));
+        assertFalse(JSONValidation.isLocalTime("20:04:37Z"));
+        assertFalse(JSONValidation.isLocalTime("10:04:66"));
+        assertFalse(JSONValidation.isLocalTime("20:67:20"));
+        assertFalse(JSONValidation.isLocalTime("24:04:37"));
         assertFalse(JSONValidation.isTime("rubbish"));
         assertFalse(JSONValidation.isTime(""));
         assertFalse(JSONValidation.isTime(null));
@@ -171,6 +210,46 @@ public class JSONValidationTest {
         assertFalse(JSONValidation.isURIReference("http:"));
         assertFalse(JSONValidation.isURIReference("http://"));
         assertFalse(JSONValidation.isURIReference(null));
+    }
+
+    @Test
+    public void shouldAcceptValidURITemplate() {
+        assertTrue(JSONValidation.isURITemplate(""));
+        assertTrue(JSONValidation.isURITemplate("abc"));
+        assertTrue(JSONValidation.isURITemplate("abc{x}"));
+        assertTrue(JSONValidation.isURITemplate("abc{x}d{y}e"));
+        assertTrue(JSONValidation.isURITemplate("{a.b.c}"));
+        assertTrue(JSONValidation.isURITemplate("{var%5F}"));
+        assertTrue(JSONValidation.isURITemplate("{+abc}"));
+        assertTrue(JSONValidation.isURITemplate("{#abc}"));
+        assertTrue(JSONValidation.isURITemplate("{.abc}"));
+        assertTrue(JSONValidation.isURITemplate("{/abc}"));
+        assertTrue(JSONValidation.isURITemplate("{;abc}"));
+        assertTrue(JSONValidation.isURITemplate("{?abc}"));
+        assertTrue(JSONValidation.isURITemplate("{&abc}"));
+        assertTrue(JSONValidation.isURITemplate("{abc,xyz}"));
+        assertTrue(JSONValidation.isURITemplate("{+abc,xyz}"));
+        assertTrue(JSONValidation.isURITemplate("{+abc*,xyz}"));
+        assertTrue(JSONValidation.isURITemplate("{+abc*,xyz:6}"));
+        assertTrue(JSONValidation.isURITemplate("{+abc*:6,xyz:6*}"));
+    }
+
+    @Test
+    public void shouldRejectInvalidURITemplate() {
+        assertFalse(JSONValidation.isURITemplate(" "));
+        assertFalse(JSONValidation.isURITemplate("{"));
+        assertFalse(JSONValidation.isURITemplate("{}"));
+        assertFalse(JSONValidation.isURITemplate("<>"));
+        assertFalse(JSONValidation.isURITemplate("{a.}"));
+        assertFalse(JSONValidation.isURITemplate("{a..b}"));
+        assertFalse(JSONValidation.isURITemplate("{var%5}"));
+        assertFalse(JSONValidation.isURITemplate("{*abc}"));
+        assertFalse(JSONValidation.isURITemplate("{+.a}"));
+        assertFalse(JSONValidation.isURITemplate("{+abc,}"));
+        assertFalse(JSONValidation.isURITemplate("{+abc*,xyz:}"));
+        assertFalse(JSONValidation.isURITemplate("{+abc*,xyz:a}"));
+        assertFalse(JSONValidation.isURITemplate("{+abc*:6*,xyz:6}"));
+        assertFalse(JSONValidation.isURITemplate(null));
     }
 
     @Test

@@ -1,6 +1,6 @@
 # json-validation
 
-[![Build Status](https://travis-ci.com/pwall567/json-validation.svg?branch=main)](https://app.travis-ci.com/github/pwall567/json-validation)
+[![Build Status](https://github.com/pwall567/json-validation/actions/workflows/build.yml/badge.svg)](https://github.com/pwall567/json-validation/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Maven Central](https://img.shields.io/maven-central/v/net.pwall.json/json-validation?label=Maven%20Central)](https://search.maven.org/search?q=g:%22net.pwall.json%22%20AND%20a:%22json-validation%22)
 
@@ -29,6 +29,18 @@ They return `true` if the value matches the requirements of the specification (t
 ```java
         boolean valid = JSONValidation.isDateTime(str);
 ```
+Test for conformity to the `date-time` format type.
+A string is valid if it conforms to the `date-time` production in
+[RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6).
+
+### `local-date-time` validation
+
+```java
+        boolean valid = JSONValidation.isLocalDateTime(str);
+```
+Test for conformity to an unofficial `local-date-time` type (not part of the JSON Schema Validation Specification).
+A string is valid if it conforms to a new production `[full-date "T" partial-time]` based on
+[RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6).
 
 ### `date` validation
 
@@ -36,11 +48,29 @@ They return `true` if the value matches the requirements of the specification (t
         boolean valid = JSONValidation.isDate(str);
 ```
 
+Test for conformity to the `date` format type.
+A string is valid if it conforms to the `full-date` production in
+[RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6).
+
 ### `time` validation
 
 ```java
         boolean valid = JSONValidation.isTime(str);
 ```
+
+Test for conformity to the `time` format type.
+A string is valid if it conforms to the `full-time` production in
+[RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6).
+
+### `local-time` validation
+
+```java
+        boolean valid = JSONValidation.isLocalTime(str);
+```
+
+Test for conformity to an unofficial `local-time` type (not part of the JSON Schema Validation Specification).
+A string is valid if it conforms to the `partial-time` production in
+[RFC 3339, section 5.6](https://tools.ietf.org/html/rfc3339#section-5.6).
 
 ### `duration` validation
 
@@ -48,17 +78,9 @@ They return `true` if the value matches the requirements of the specification (t
         boolean valid = JSONValidation.isDuration(str);
 ```
 
-### `email` validation
-
-```java
-        boolean valid = JSONValidation.isEmail(str);
-```
-
-### `hostname` validation
-
-```java
-        boolean valid = JSONValidation.isHostname(str);
-```
+Test for conformity to the `duration` format type.
+A string is valid if it conforms to the `duration` production in
+[RFC 3339, Appendix A](https://tools.ietf.org/html/rfc3339#appendix-A).
 
 ### `uri` validation
 
@@ -66,11 +88,27 @@ They return `true` if the value matches the requirements of the specification (t
         boolean valid = JSONValidation.isURI(str);
 ```
 
+Test for conformity to the `uri` format type.
+A string is valid if it conforms to [RFC 3986](https://tools.ietf.org/html/rfc3986).
+
 ### `uri-reference` validation
 
 ```java
         boolean valid = JSONValidation.isURIReference(str);
 ```
+
+Test for conformity to the `uri-reference` format type.
+A string is valid if it conforms to [RFC 3986](https://tools.ietf.org/html/rfc3986) (either a URI or a
+relative-reference).
+
+### `uri-template` validation
+
+```java
+        boolean valid = JSONValidation.isURI(str);
+```
+
+Test for conformity to the `uri-template` format type.
+A string is valid if it conforms to [RFC 6570](https://www.rfc-editor.org/rfc/rfc6570.html).
 
 ### `uuid` validation
 
@@ -78,11 +116,42 @@ They return `true` if the value matches the requirements of the specification (t
         boolean valid = JSONValidation.isUUID(str);
 ```
 
+Test for conformity to the `uuid` format type.
+A string is valid if it conforms to [RFC 4122](https://tools.ietf.org/html/rfc4122).
+
+### `hostname` validation
+
+```java
+        boolean valid = JSONValidation.isHostname(str);
+```
+
+Test for conformity to the `hostname` format type.
+A string is valid if it conforms to [RFC 1123, section 2.1](https://tools.ietf.org/html/rfc1123#section-2.1).
+
+### `email` validation
+
+```java
+        boolean valid = JSONValidation.isEmail(str);
+```
+
+Test for conformity to the `email` format type.
+
+Validation of email addresses is difficult, largely because the specification in
+[RFC 5322](https://www.ietf.org/rfc/rfc5322.html) makes reference to earlier &ldquo;obsolete&rdquo; forms of email
+addresses that are expected to be accepted as valid.
+This function does not attempt to cover the entire range of obsolete addresses; instead, it implements a form of
+validation derived from the regular expression at the web site [`emailregex.com`](http://emailregex.com/) for the
+&ldquo;local-part&rdquo; (the addressee or mailbox name), and it uses the `hostname` validation from
+[RFC 1123](https://tools.ietf.org/html/rfc1123) for the &ldquo;domain&rdquo;.
+
 ### `ipv4` validation
 
 ```java
         boolean valid = JSONValidation.isIPV4(str);
 ```
+
+Test for conformity to the `ipv4` format type.
+A string is valid if it conforms to [RFC 2673, section 3.2](https://tools.ietf.org/html/rfc2673#section-3.2).
 
 ### `ipv6` validation
 
@@ -90,11 +159,26 @@ They return `true` if the value matches the requirements of the specification (t
         boolean valid = JSONValidation.isIPV6(str);
 ```
 
+Test for conformity to the `ipv6` format type.
+A string is valid if it conforms to [RFC 4291, section 2.2](https://tools.ietf.org/html/rfc4291#section-2.2).
+
+**NOTE:** The [JSON Schema Validation](https://json-schema.org/draft/2019-09/json-schema-validation.html) specification
+says (&sect; 7.3.4) that a string conforming to the `ipv6` format must be an &ldquo;IPv6 address as defined in
+[RFC 4291, section 2.2](https://tools.ietf.org/html/rfc4291)&rdquo;.
+Subsequent to RFC 4291, [RFC 5952](https://tools.ietf.org/html/rfc5952) recommended tighter restrictions on the
+representation of IPV6 addresses, including mandating the use of lower case for all alpha characters, and prohibiting
+the use of &ldquo;`::`&rdquo; to compress a single zero 16-bit field.
+Because the JSON Schema Validation specification refers only to RFC 4291, not RFC 5952, this function does not implement
+the tighter restrictions of the later document.
+
 ### `json-pointer` validation
 
 ```java
         boolean valid = JSONValidation.isJSONPointer(str);
 ```
+
+Test for conformity to the `json-pointer` format type.
+A string is valid if it conforms to [RFC 6901, section 5](https://tools.ietf.org/html/rfc6901#section-5).
 
 ### `relative-json-pointer` validation
 
@@ -102,11 +186,22 @@ They return `true` if the value matches the requirements of the specification (t
         boolean valid = JSONValidation.isRelativeJSONPointer(str);
 ```
 
+Test for conformity to the `relative-json-pointer` format type.
+A string is valid if it conforms to
+[Relative JSON Pointers](https://json-schema.org/draft/2020-12/relative-json-pointer.html).
+
 ### `regex` validation
 
 ```java
         boolean valid = JSONValidation.isRegex(str);
 ```
+
+Test for conformity to the `regex` format type.
+A string is valid if it conforms to the [ECMA 262](https://www.ecma-international.org/ecma-262/11.0) regular expression
+dialect.
+
+Since the Java `Pattern` class used here implements a dialect very close to, but not identical to the ECMA 262 variant,
+it is possible that in rare cases there may be subtle inconsistencies in the results of this function.
 
 ## Additional Functions
 
@@ -139,25 +234,25 @@ long list of transitive dependencies.
 
 ## Dependency Specification
 
-The latest version of the library is 1.5, and it may be obtained from the Maven Central repository.
+The latest version of the library is 2.0, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.json</groupId>
       <artifactId>json-validation</artifactId>
-      <version>1.5</version>
+      <version>2.0</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'net.pwall.json:json-validation:1.5'
+    implementation 'net.pwall.json:json-validation:2.0'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.json:json-validation:1.5")
+    implementation("net.pwall.json:json-validation:2.0")
 ```
 
 Peter Wall
 
-2022-11-06
+2024-11-02
