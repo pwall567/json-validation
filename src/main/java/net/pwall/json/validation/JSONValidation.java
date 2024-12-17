@@ -109,6 +109,18 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
+    public static boolean isDateTime(String string) {
+        return isDateTime((CharSequence)string);
+    }
+
+    /**
+     * Test for conformity to the {@code date-time} format type.  A string is valid if it conforms to the
+     * {@code date-time} production in
+     * <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
     public static boolean isDateTime(CharSequence string) {
         if (string == null)
             return false;
@@ -120,6 +132,18 @@ public class JSONValidation {
         if (ch != 'T' && ch != 't')
             return false;
         return checkTime(string, 11);
+    }
+
+    /**
+     * Test for conformity to an unofficial {@code local-date-time} type (not part of the JSON Schema Validation
+     * Specification).  A string is valid if it conforms to a new production {@code [full-date "T" partial-time]} based
+     * on <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isLocalDateTime(String string) {
+        return isLocalDateTime((CharSequence)string);
     }
 
     /**
@@ -151,6 +175,17 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
+    public static boolean isDate(String string) {
+        return isDate((CharSequence)string);
+    }
+
+    /**
+     * Test for conformity to the {@code date} format type.  A string is valid if it conforms to the {@code full-date}
+     * production in <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
     public static boolean isDate(CharSequence string) {
         if (string == null)
             return false;
@@ -166,10 +201,33 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
+    public static boolean isTime(String string) {
+        return isTime((CharSequence)string);
+    }
+
+    /**
+     * Test for conformity to the {@code time} format type.  A string is valid if it conforms to the {@code full-time}
+     * production in <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
     public static boolean isTime(CharSequence string) {
         if (string == null)
             return false;
         return checkTime(string, 0);
+    }
+
+    /**
+     * Test for conformity to an unofficial {@code local-time} type (not part of the JSON Schema Validation
+     * Specification).  A string is valid if it conforms to the {@code partial-time} production in
+     * <a href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339, section 5.6</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isLocalTime(String string) {
+        return isLocalTime((CharSequence)string);
     }
 
     /**
@@ -358,6 +416,17 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
+    public static boolean isDuration(String string) {
+        return isDuration((CharSequence)string);
+    }
+
+    /**
+     * Test for conformity to the {@code duration} format type.  A string is valid if it conforms to the
+     * {@code duration} production in <a href="https://tools.ietf.org/html/rfc3339#appendix-A">RFC 3339, Appendix A</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
     public static boolean isDuration(CharSequence string) {
         if (string == null)
             return false;
@@ -416,6 +485,17 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
+    public static boolean isURI(String string) {
+        return isURI((CharSequence)string);
+    }
+
+    /**
+     * Test for conformity to the {@code uri} format type.  A string is valid if it conforms to
+     * <a href="https://tools.ietf.org/html/rfc3986">RFC 3986</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
     public static boolean isURI(CharSequence string) {
         if (string == null)
             return false;
@@ -437,6 +517,17 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
+    public static boolean isURIReference(String string) {
+        return isURIReference((CharSequence)string);
+    }
+
+    /**
+     * Test for conformity to the {@code uri-reference} format type.  A string is valid if it conforms to
+     * <a href="https://tools.ietf.org/html/rfc3986">RFC 3986</a> (either a URI or a relative-reference).
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
     public static boolean isURIReference(CharSequence string) {
         if (string == null)
             return false;
@@ -449,6 +540,17 @@ public class JSONValidation {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Test for conformity to the {@code uri-template} format type.  A string is valid if it conforms to
+     * <a href="https://www.rfc-editor.org/rfc/rfc6570.html">RFC 6570</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isURITemplate(String string) {
+        return isURITemplate((CharSequence)string);
     }
 
     /**
@@ -556,6 +658,17 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
+    public static boolean isUUID(String string) {
+        return isUUID((CharSequence)string);
+    }
+
+    /**
+     * Test for conformity to the {@code uuid} format type.  A string is valid if it conforms to
+     * <a href="https://tools.ietf.org/html/rfc4122">RFC 4122</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
     public static boolean isUUID(CharSequence string) {
         if (string == null || string.length() != uuidLength)
             return false;
@@ -598,6 +711,17 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
+    public static boolean isHostname(String string) {
+        return isHostname((CharSequence)string);
+    }
+
+    /**
+     * Test for conformity to the {@code hostname} format type.  A string is valid if it conforms to
+     * <a href="https://tools.ietf.org/html/rfc1123#section-2.1">RFC 1123, section 2.1</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
     public static boolean isHostname(CharSequence string) {
         if (string == null)
             return false;
@@ -622,6 +746,24 @@ public class JSONValidation {
             }
         }
         return nextMayBeDashOrDot;
+    }
+
+    /**
+     * Test for conformity to the {@code email} format type.
+     *
+     * <p>Validation of email addresses is difficult, largely because the specification in
+     * <a href="https://www.ietf.org/rfc/rfc5322.html">RFC 5322</a> makes reference to earlier &ldquo;obsolete&rdquo;
+     * forms of email addresses that are expected to be accepted as valid.  This function does not attempt to cover the
+     * entire range of obsolete addresses; instead, it implements a form of validation derived from the regular
+     * expression at the web site <a href="http://emailregex.com/">{@code emailregex.com}</a> for the
+     * &ldquo;local-part&rdquo; (the addressee or mailbox name), and it uses the hostname validation from
+     * <a href="https://tools.ietf.org/html/rfc1123">RFC 1123</a> for the &ldquo;domain&rdquo;.</p>
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isEmail(String string) {
+        return isEmail((CharSequence)string);
     }
 
     /**
@@ -700,6 +842,17 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
+    public static boolean isIPV4(String string) {
+        return isIPV4((CharSequence)string);
+    }
+
+    /**
+     * Test for conformity to the {@code ipv4} format type.  A string is valid if it conforms to
+     * <a href="https://tools.ietf.org/html/rfc2673#section-3.2">RFC 2673, section 3.2</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
     public static boolean isIPV4(CharSequence string) {
         if (string == null)
             return false;
@@ -733,6 +886,27 @@ public class JSONValidation {
                 return false;
         }
         return i == n;
+    }
+
+    /**
+     * Test for conformity to the {@code ipv6} format type.  A string is valid if it conforms to
+     * <a href="https://tools.ietf.org/html/rfc4291#section-2.2">RFC 4291, section 2.2</a>.
+     *
+     * <p><b>NOTE:</b> The
+     * <a href="https://json-schema.org/draft/2019-09/json-schema-validation.html">JSON Schema Validation</a>
+     * specification says (&sect; 7.3.4) that a string conforming to the {@code ipv6} format must be an &ldquo;IPv6
+     * address as defined in <a href="https://tools.ietf.org/html/rfc4291">RFC 4291, section 2.2</a>&rdquo;.  Subsequent
+     * to RFC 4291, <a href="https://tools.ietf.org/html/rfc5952">RFC 5952</a> recommended tighter restrictions on the
+     * representation of IPV6 addresses, including mandating the use of lower case for all alpha characters, and
+     * prohibiting the use of &ldquo;{@code ::}&rdquo; to compress a single zero 16-bit field.  Because the JSON Schema
+     * Validation specification refers only to RFC 4291, not RFC 5952, this function does not implement the tighter
+     * restrictions of the later document.</p>
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isIPV6(String string) {
+        return isIPV6((CharSequence)string);
     }
 
     /**
@@ -811,6 +985,17 @@ public class JSONValidation {
      * @param   string  the string to be tested
      * @return          {@code true} if the string is correct
      */
+    public static boolean isJSONPointer(String string) {
+        return isJSONPointer((CharSequence)string);
+    }
+
+    /**
+     * Test for conformity to the {@code json-pointer} format type.  A string is valid if it conforms to
+     * <a href="https://tools.ietf.org/html/rfc6901#section-5">RFC 6901, section 5</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
     public static boolean isJSONPointer(CharSequence string) {
         if (string == null)
             return false;
@@ -830,6 +1015,17 @@ public class JSONValidation {
             }
         }
         return true;
+    }
+
+    /**
+     * Test for conformity to the {@code relative-json-pointer} format type.  A string is valid if it conforms to
+     * <a href="https://json-schema.org/draft/2020-12/relative-json-pointer.html">Relative JSON Pointers</a>.
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isRelativeJSONPointer(String string) {
+        return isRelativeJSONPointer((CharSequence)string);
     }
 
     /**
@@ -881,6 +1077,21 @@ public class JSONValidation {
             }
         }
         return ch == '#' && i == n || isJSONPointer(string, i - 1);
+    }
+
+    /**
+     * Test for conformity to the {@code regex} format type.  A string is valid if it conforms to the
+     * <a href="https://www.ecma-international.org/ecma-262/11.0">ECMA 262</a> regular expression dialect.
+     *
+     * <p>Since the Java {@link Pattern} class used here implements a dialect very close to, but not identical to the
+     * ECMA 262 variant, it is possible that in rare cases there may be subtle inconsistencies in the results of this
+     * function.</p>
+     *
+     * @param   string  the string to be tested
+     * @return          {@code true} if the string is correct
+     */
+    public static boolean isRegex(String string) {
+        return isRegex((CharSequence)string);
     }
 
     /**

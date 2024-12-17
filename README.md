@@ -234,25 +234,25 @@ long list of transitive dependencies.
 
 ## Dependency Specification
 
-The latest version of the library is 2.0, and it may be obtained from the Maven Central repository.
+The latest version of the library is 2.1, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>net.pwall.json</groupId>
       <artifactId>json-validation</artifactId>
-      <version>2.0</version>
+      <version>2.1</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'net.pwall.json:json-validation:2.0'
+    implementation 'net.pwall.json:json-validation:2.1'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.json:json-validation:2.0")
+    implementation("net.pwall.json:json-validation:2.1")
 ```
 
 Peter Wall
 
-2024-11-02
+2024-12-18

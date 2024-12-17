@@ -2,6 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.1] - 2024-12-18
+### Changed
+- reinstated versions of functions taking `String` for backward binary compatibility
+
 ## [2.0] - 2024-11-02
 ### Added
 - `build.yml`, `deploy.yml`: converted project to GitHub Actions
