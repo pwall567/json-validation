@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-package net.pwall.json.validation;
+package io.jstuff.java.validation;
 
 import org.junit.Test;
 

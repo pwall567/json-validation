@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/pwall567/json-validation/actions/workflows/build.yml/badge.svg)](https://github.com/pwall567/json-validation/actions/workflows/build.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Maven Central](https://img.shields.io/maven-central/v/net.pwall.json/json-validation?label=Maven%20Central)](https://search.maven.org/search?q=g:%22net.pwall.json%22%20AND%20a:%22json-validation%22)
+[![Maven Central](https://img.shields.io/maven-central/v/io.jstuff/json-validation?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.jstuff%22%20AND%20a:%22json-validation%22)
 
 Validation functions for JSON Schema validation
 
@@ -234,25 +234,25 @@ long list of transitive dependencies.
 
 ## Dependency Specification
 
-The latest version of the library is 2.1, and it may be obtained from the Maven Central repository.
+The latest version of the library is 3.0, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
-      <groupId>net.pwall.json</groupId>
+      <groupId>io.jstuff</groupId>
       <artifactId>json-validation</artifactId>
-      <version>2.1</version>
+      <version>3.0</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'net.pwall.json:json-validation:2.1'
+    implementation 'io.jstuff:json-validation:3.0'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("net.pwall.json:json-validation:2.1")
+    implementation("io.jstuff:json-validation:3.0")
 ```
 
 Peter Wall
 
-2024-12-18
+2025-01-31

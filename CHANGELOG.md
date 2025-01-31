@@ -2,6 +2,11 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [3.0] - 2025-01-31
+### Changed
+- `pom.xml`: moved to `io.jstuff` (package amd Maven group)
+- removed previously reinstated functions taking `String` (no backward binary compatibility issue in new package)
+
 ## [2.1] - 2024-12-18
 ### Changed
 - reinstated versions of functions taking `String` for backward binary compatibility
