@@ -2,6 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [4.0] - 2025-02-03
+### Changed
+- fixed mistake in package renaming (breaking change)
+
 ## [3.0] - 2025-01-31
 ### Changed
 - `pom.xml`: moved to `io.jstuff` (package amd Maven group)

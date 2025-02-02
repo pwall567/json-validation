@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>json-validation</artifactId>
-  <version>3.0</version>
+  <version>4.0</version>
   <name>JSON Validation</name>
   <description>Validation functions for JSON Schema validation</description>
   <packaging>jar</packaging>

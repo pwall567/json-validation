@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-package io.jstuff.java.validation;
+package io.jstuff.json.validation;
 
 import java.net.URI;
 import java.net.URISyntaxException;

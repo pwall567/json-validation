@@ -234,25 +234,25 @@ long list of transitive dependencies.
 
 ## Dependency Specification
 
-The latest version of the library is 3.0, and it may be obtained from the Maven Central repository.
+The latest version of the library is 4.0, and it may be obtained from the Maven Central repository.
 
 ### Maven
 ```xml
     <dependency>
       <groupId>io.jstuff</groupId>
       <artifactId>json-validation</artifactId>
-      <version>3.0</version>
+      <version>4.0</version>
     </dependency>
 ```
 ### Gradle
 ```groovy
-    implementation 'io.jstuff:json-validation:3.0'
+    implementation 'io.jstuff:json-validation:4.0'
 ```
 ### Gradle (kts)
 ```kotlin
-    implementation("io.jstuff:json-validation:3.0")
+    implementation("io.jstuff:json-validation:4.0")
 ```
 
 Peter Wall
 
-2025-01-31
+2025-02-03
